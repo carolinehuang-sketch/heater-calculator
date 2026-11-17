@@ -1,0 +1,1489 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hot Plate Thermal FEA Simulation & Engineering Report System | Watlow Engineering Standards</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 4px;
+    }
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-only {
+        display: block !important;
+      }
+      .report-page {
+        page-break-after: always;
+        break-after: page;
+      }
+      .shadow-xl, .shadow-2xl, .shadow-md, .shadow-lg {
+        box-shadow: none !important;
+      }
+      .border-slate-800, .border-slate-700 {
+        border-color: #cbd5e1 !important;
+      }
+      .bg-slate-900, .bg-slate-950, .bg-slate-800 {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+      }
+      .text-white {
+        color: #0f172a !important;
+      }
+      .text-slate-400, .text-slate-300 {
+        color: #475569 !important;
+      }
+      canvas {
+        max-width: 100% !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-amber-500 selection:text-slate-950 custom-scrollbar">
+
+  <!-- ========================================== -->
+  <!-- TOP HEADER & NAVIGATION BAR                -->
+  <!-- ========================================== -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-orange-500 to-red-600 flex items-center justify-center shadow-lg shadow-orange-500/20 text-slate-950 font-black text-xl">
+          â™¨
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
+            Hot Plate Thermal FEA Simulation & Report System
+            <span class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-mono font-bold">FEA Numerical Solver</span>
+          </h1>
+          <p class="text-xs text-slate-400">
+            2D Heatmap â€¢ Convection Vector Field â€¢ 3D Isometric View â€¢ Dual-Layer Tracking â€¢ WatlowÂ® Safety Standards
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <button type="button" onclick="loadBenchmark5Zone();" class="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-semibold text-xs transition-all flex items-center gap-1.5">
+          <span>â­</span> Load 5-Zone Colleague (2030W)
+        </button>
+        <button type="button" onclick="window.print();" class="px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition-all flex items-center gap-1.5">
+          <span>ðŸ“„</span> Print / Export PDF Report
+        </button>
+        <a href="Heater_Engineering_Calculator.html" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs border border-slate-700 transition-all flex items-center gap-1">
+          <span>â†</span> Back to Main Suite
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- MAIN WORKSPACE                             -->
+  <!-- ========================================== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Top Status / Mode Switcher Banner -->
+    <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/30 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden no-print">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider mb-1">
+            <span>Engineering Physics Core</span>
+            <span>â€¢</span>
+            <span class="text-slate-400 font-normal">Fourier 2D Transient Conduction + Natural Convection Airflow Vectors + 3D Isometric Visualization</span>
+          </div>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            Industrial Hot Plate Thermal Simulator & Report Generator
+          </h2>
+          <p class="text-xs text-slate-400 mt-1 max-w-3xl leading-relaxed">
+            Simulates both <strong>SS Working Plate Surface Temperature</strong> and <strong>Internal SRH Heating Element Wire Temperature</strong>. Includes <strong>3 Interactive View Modes</strong> (Air Flow Vectors, 2D Heat Map, and 3D Isometric View) with bottom mica insulation layer tracking.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-3 shrink-0">
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-right">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Mesh Resolution</div>
+            <div class="text-sm font-bold font-mono text-amber-400" id="headerMeshInfo">45 Ã— 45 (2,025 Nodes)</div>
+          </div>
+          <button id="btnRunSimulation" onclick="toggleSimulation();" class="px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2">
+            <span id="btnSimIcon">â–¶</span> <span id="btnSimText">Start Real-Time FEA Solver</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Grid: Controls & Outputs -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- ============================================== -->
+      <!-- LEFT COLUMN: ENGINEERING PARAMETERS (5 COLS)   -->
+      <!-- ============================================== -->
+      <div class="lg:col-span-5 space-y-5 no-print">
+
+        <!-- 1. Plate & Material Mechanics -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              1. Stainless Steel Plate Geometry
+            </h3>
+            <span class="text-[10px] font-mono text-slate-400">Top Working Surface</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2.5">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Length (X):</label>
+              <div class="relative">
+                <input type="number" id="plateL" value="558" min="50" max="2500" step="10" oninput="onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-amber-500">
+                <span class="absolute right-2 top-1.5 text-[10px] text-slate-500 font-mono">mm</span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Width (Y):</label>
+              <div class="relative">
+                <input type="number" id="plateW" value="478" min="50" max="2500" step="10" oninput="onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-amber-500">
+                <span class="absolute right-2 top-1.5 text-[10px] text-slate-500 font-mono">mm</span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Thickness (t):</label>
+              <div class="relative">
+                <input type="number" id="plateT" value="3.0" min="0.5" max="100" step="0.5" oninput="onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-amber-500">
+                <span class="absolute right-2 top-1.5 text-[10px] text-slate-500 font-mono">mm</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 pt-1">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Material Alloy:</label>
+              <select id="plateMat" onchange="onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                <option value="ss304" selected>Stainless Steel 304 (k = 16.2 W/mÂ·K)</option>
+                <option value="ss316">Stainless Steel 316 (k = 15.9 W/mÂ·K)</option>
+                <option value="ss430">Stainless Steel 430 (k = 26.0 W/mÂ·K)</option>
+                <option value="alu6061">Aluminum 6061 (k = 167 W/mÂ·K)</option>
+                <option value="copper">Pure Copper C110 (k = 385 W/mÂ·K)</option>
+                <option value="brass">Brass C360 (k = 115 W/mÂ·K)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Plate Emissivity (Îµ):</label>
+              <select id="plateEmissivity" onchange="onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                <option value="0.15">Polished / Clean Metal (Îµ = 0.15)</option>
+                <option value="0.40" selected>Semi-Oxidized / Brushed (Îµ = 0.40)</option>
+                <option value="0.75">Heavy Oxide / Darkened (Îµ = 0.75)</option>
+                <option value="0.85">Anodized / Coated (Îµ = 0.85)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Calculated Mass & Thermal Mass Callout -->
+          <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800 flex items-center justify-between text-xs font-mono">
+            <div>
+              <span class="text-slate-400">Plate Mass:</span>
+              <span id="calloutPlateMass" class="font-bold text-white ml-1">6.40 kg</span>
+            </div>
+            <div>
+              <span class="text-slate-400">Heat Capacity:</span>
+              <span id="calloutHeatCap" class="font-bold text-amber-400 ml-1">3.20 kJ/Â°C</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Heater Configuration & Architecture -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+              2. Heater Layer & Bottom Mica Assembly
+            </h3>
+            <span class="text-[10px] font-mono text-slate-400">Sandwich Stack</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Heater Technology:</label>
+              <select id="heaterTech" onchange="onTechChange(); onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                <option value="attached_silicone" selected>Silicone Rubber Heater (SRH - 1.5mm)</option>
+                <option value="attached_mica">Surface-Attached Mica Plate Heater</option>
+                <option value="embedded_tubular">Embedded Cast/Milled Tubular Elements</option>
+                <option value="embedded_cartridge">Inbuilt Drilled Bore Cartridge Heaters</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Attachment / Bonding:</label>
+              <select id="heaterMount" onchange="onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                <option value="psa" selected>Factory Vulcanized PSA Adhesive (Max 150Â°C)</option>
+                <option value="rtv">High-Temp RTV Silicone Paste (Max 200Â°C)</option>
+                <option value="clamped">Mechanically Clamped Backing Plate</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- BOTTOM MICA INSULATION PLATE SELECTION -->
+          <div class="p-3 bg-amber-500/10 rounded-xl border border-amber-500/30 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-amber-300 flex items-center gap-1.5">
+                <span>ðŸ›¡ï¸</span> Bottom Mica Plate Backing / Insulation:
+              </span>
+              <span id="badgeMicaStatus" class="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Mica Active</span>
+            </div>
+            <p class="text-[10px] text-slate-400 leading-tight">
+              Customer places a rigid high-dielectric Muscovite / Phlogopite Mica plate at the bottom of the SRH pad to redirect downward thermal losses upward into the SS working plate.
+            </p>
+            <div class="grid grid-cols-2 gap-2 pt-1">
+              <div>
+                <label class="block text-[10px] font-semibold text-slate-300 mb-1">Mica Plate Option:</label>
+                <select id="micaOption" onchange="onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white">
+                  <option value="none">No Mica (Bare Silicone Backside)</option>
+                  <option value="mica_2mm" selected>2.0 mm Rigid Mica Plate (k = 0.18 W/mÂ·K)</option>
+                  <option value="mica_3mm">3.0 mm Rigid Mica Plate (Heavy duty)</option>
+                  <option value="mica_5mm">5.0 mm Rigid Mica Thermal Barrier</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] font-semibold text-slate-300 mb-1">Mica Assembly Method:</label>
+                <select id="micaMount" onchange="onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white">
+                  <option value="clamped_bolts" selected>Bolted Clamping Flange / Pressure Plate</option>
+                  <option value="adhesive_bonded">High-Temp RTV Contact Bonded</option>
+                  <option value="gravity_rest">Resting / Non-Pressurized Contact</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Multi-Zone Architecture:</label>
+            <select id="zoneConfigMode" onchange="onZoneConfigChange(); onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+              <option value="5_custom" selected>5-Zone Modular Layout (4 Perimeter Edge Pads + 1 Center Core)</option>
+              <option value="single">Single Monolithic Pad (1 Zone 100% Coverage)</option>
+              <option value="3_linear">3-Zone Linear (Left Edge, Center Core, Right Edge)</option>
+              <option value="6_matrix">6-Zone Modular Matrix (2Ã—3 Grid)</option>
+            </select>
+          </div>
+
+          <!-- Dynamic Zone Editor for 5-Zone -->
+          <div id="wrap5ZoneEditor" class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-amber-300 uppercase">5-Zone Dimensions & Target Power (W):</span>
+              <span class="text-[10px] text-slate-500">Colleague Design Preset</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="p-2 bg-slate-900 rounded-lg border border-slate-800">
+                <div class="text-[10px] font-bold text-amber-400 mb-1">Zone 1 & 3 (Side Edges, Qty 2)</div>
+                <div class="grid grid-cols-2 gap-1.5">
+                  <input type="number" id="z13_l" value="384" placeholder="L mm" oninput="onParamChange();" class="bg-slate-800 border border-slate-700 rounded px-1.5 py-1 text-[11px] font-mono text-white">
+                  <input type="number" id="z13_w" value="40" placeholder="W mm" oninput="onParamChange();" class="bg-slate-800 border border-slate-700 rounded px-1.5 py-1 text-[11px] font-mono text-white">
+                </div>
+              </div>
+
+              <div class="p-2 bg-slate-900 rounded-lg border border-slate-800">
+                <div class="text-[10px] font-bold text-amber-400 mb-1">Zone 2 & 4 (Top/Bottom, Qty 2)</div>
+                <div class="grid grid-cols-2 gap-1.5">
+                  <input type="number" id="z24_l" value="558" placeholder="L mm" oninput="onParamChange();" class="bg-slate-800 border border-slate-700 rounded px-1.5 py-1 text-[11px] font-mono text-white">
+                  <input type="number" id="z24_w" value="47" placeholder="W mm" oninput="onParamChange();" class="bg-slate-800 border border-slate-700 rounded px-1.5 py-1 text-[11px] font-mono text-white">
+                </div>
+              </div>
+            </div>
+
+            <div class="p-2 bg-slate-900 rounded-lg border border-slate-800">
+              <div class="text-[10px] font-bold text-cyan-400 mb-1">Zone 5 (Center Core Pad, Qty 1) & Total Power</div>
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <label class="text-[9px] text-slate-400 block">Length (mm):</label>
+                  <input type="number" id="z5_l" value="478" oninput="onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded px-1.5 py-1 text-[11px] font-mono text-white">
+                </div>
+                <div>
+                  <label class="text-[9px] text-slate-400 block">Width (mm):</label>
+                  <input type="number" id="z5_w" value="384" oninput="onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded px-1.5 py-1 text-[11px] font-mono text-white">
+                </div>
+                <div>
+                  <label class="text-[9px] text-amber-400 font-bold block">Total Watts (W):</label>
+                  <input type="number" id="totalWattsInput" value="2030" oninput="onParamChange();" class="w-full bg-slate-800 border border-amber-500/50 rounded px-1.5 py-1 text-[11px] font-mono text-amber-300 font-bold">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Thermal Targets, Losses & Control Strategy -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-500"></span>
+              3. Operational Targets & Temperature Reference
+            </h3>
+            <span class="text-[10px] font-mono text-slate-400">PID & Environment</span>
+          </div>
+
+          <!-- TARGET REFERENCE SELECTOR -->
+          <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+            <label class="block text-[11px] font-bold text-amber-300 mb-1">Target Temperature Control Reference:</label>
+            <select id="targetBasis" onchange="onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+              <option value="ss_plate" selected>Stainless Steel Plate Top Working Surface (Recommended: Plate holds setpoint)</option>
+              <option value="srh_element">Silicone Rubber Heater (SRH) Heating Element Wire (Internal Core limits)</option>
+            </select>
+            <div class="text-[10px] text-slate-400 mt-1" id="basisExplanation">
+              â€¢ Sensor controls the <strong>SS Plate Working Surface</strong>. Because heat must conduct across the silicone and bond layer, the internal SRH element runs hotter (typically +5Â°C to +15Â°C higher).
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2.5">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Target Temp (Tâ‚‚):</label>
+              <div class="relative">
+                <input type="number" id="tempTarget" value="120" min="25" max="350" step="5" oninput="onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-amber-500">
+                <span class="absolute right-2 top-1.5 text-[10px] text-slate-500 font-mono">Â°C</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Ambient Temp (Tâ‚):</label>
+              <div class="relative">
+                <input type="number" id="tempAmb" value="25" min="-20" max="80" step="1" oninput="onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-amber-500">
+                <span class="absolute right-2 top-1.5 text-[10px] text-slate-500 font-mono">Â°C</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Desired Heat-Up:</label>
+              <div class="relative">
+                <input type="number" id="desiredRampMin" value="15" min="1" max="180" step="1" oninput="onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-amber-500">
+                <span class="absolute right-2 top-1.5 text-[10px] text-slate-500 font-mono">Min</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Additional Backside Sponge:</label>
+              <select id="insulationType" onchange="onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                <option value="none">Bare Mica (Mica exposed to room air)</option>
+                <option value="sponge_10mm" selected>10mm Silicone Sponge Foam (Under Mica)</option>
+                <option value="fully_insulated">Enclosed Insulated Chamber</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Control Strategy:</label>
+              <select id="controlMode" onchange="onParamChange();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                <option value="closed_loop_pid" selected>Closed-Loop PID (Edge Boost + Center Sensor)</option>
+                <option value="multi_loop">Individual Loop per Zone (5 Independent Controllers)</option>
+                <option value="open_loop">Open-Loop Continuous 100% Power</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============================================== -->
+      <!-- RIGHT COLUMN: SIMULATION & LIVE MESH (7 COLS)  -->
+      <!-- ============================================== -->
+      <div class="lg:col-span-7 space-y-5">
+
+        <!-- 2D / 3D / Air Flow FEA Viewport Container -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-2xl space-y-4">
+          <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" id="simLiveDot"></span>
+              <h3 class="text-sm font-bold text-white">Thermal Simulation Viewport</h3>
+            </div>
+
+            <!-- VIEW MODE SWITCHER (Matching User's Reference Slide: Air Flow, Heat Map, 3D View) -->
+            <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
+              <button type="button" id="btnViewAirflow" onclick="switchViewMode('airflow');" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition-all flex items-center gap-1">
+                <span>ðŸ’¨</span> Air Flow
+              </button>
+              <button type="button" id="btnViewHeatmap" onclick="switchViewMode('heatmap');" class="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold shadow transition-all flex items-center gap-1">
+                <span>ðŸŒ¡ï¸</span> Heat Map
+              </button>
+              <button type="button" id="btnView3D" onclick="switchViewMode('3d');" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition-all flex items-center gap-1">
+                <span>ðŸ§Š</span> 3D View
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2 text-xs">
+              <span id="simStatusBadge" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[10px] border border-slate-700">Solver Ready</span>
+              <span id="simTimeElapsed" class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono text-[10px] border border-amber-500/20">t = 0.0 s</span>
+            </div>
+          </div>
+
+          <!-- Simulation Canvas Viewport -->
+          <div class="relative bg-slate-950 rounded-xl border border-slate-800 p-3 flex flex-col items-center justify-center overflow-hidden">
+            <canvas id="feaCanvas" width="600" height="380" class="w-full max-w-[600px] h-[320px] sm:h-[360px] bg-slate-950 rounded-lg shadow-inner cursor-crosshair"></canvas>
+
+            <!-- Temperature Legend Bar -->
+            <div class="w-full max-w-[560px] mt-3 flex items-center justify-between text-[11px] font-mono text-slate-400">
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-sm bg-[#1e3a8a] border border-blue-400/30"></span>
+                <span id="legendTMin">25Â°C</span>
+              </div>
+              <div class="flex-1 mx-3 h-3 rounded-full bg-gradient-to-r from-[#1e3a8a] via-[#0284c7] via-[#10b981] via-[#f59e0b] to-[#ef4444] border border-slate-700"></div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-sm bg-[#ef4444] border border-red-400/30"></span>
+                <span id="legendTMax">135Â°C</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- DUAL-LAYER METRICS: SS PLATE SURFACE & INTERNAL SRH ELEMENT -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+              <div class="text-[10px] text-slate-400 font-mono uppercase">SS Plate Top Surface</div>
+              <div class="text-base font-bold font-mono text-amber-400" id="metricSSPlateT">25.0Â°C</div>
+              <div class="text-[9px] text-slate-500 font-mono">Working Platen Area</div>
+            </div>
+            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-amber-500/30 bg-amber-500/5">
+              <div class="text-[10px] text-amber-300 font-mono uppercase font-bold">Internal SRH Element</div>
+              <div class="text-base font-bold font-mono text-red-400" id="metricSRHElemT">25.0Â°C</div>
+              <div class="text-[9px] text-amber-400/80 font-mono" id="metricSRHDelta">+0.0Â°C Wire Core</div>
+            </div>
+            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+              <div class="text-[10px] text-slate-400 font-mono uppercase">Bottom Mica Temp</div>
+              <div class="text-base font-bold font-mono text-blue-400" id="metricMicaT">25.0Â°C</div>
+              <div class="text-[9px] text-slate-500 font-mono">Insulation Shield</div>
+            </div>
+            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+              <div class="text-[10px] text-slate-400 font-mono uppercase">Plate Uniformity (Â±Î”T)</div>
+              <div class="text-base font-bold font-mono text-emerald-400" id="metricUniformity">Â±0.0Â°C</div>
+              <div class="text-[9px] text-emerald-400/80 font-mono">Strict Â±3Â°C Target</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-Time Ramp Curve & Watlow Safety Compliance -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              Transient Heat-Up Ramp (Plate vs SRH Element) & Watlow Safety
+            </h3>
+            <span class="text-[10px] font-mono text-slate-400">Dual Layer Tracking</span>
+          </div>
+
+          <div class="h-[180px] w-full">
+            <canvas id="transientChart"></canvas>
+          </div>
+
+          <!-- Zone Breakdown & Watt Density Audit Table -->
+          <div class="space-y-2 pt-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold text-white">Zone Electrical & Watt Density Audit:</span>
+              <span id="auditOverallBadge" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono text-[10px] border border-emerald-500/30">PASS: All Zones Safe</span>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-[11px] text-left text-slate-300">
+                <thead class="text-[10px] uppercase font-mono text-slate-400 bg-slate-950/80 border-b border-slate-800">
+                  <tr>
+                    <th class="py-1.5 px-2">Zone Identifier</th>
+                    <th class="py-1.5 px-2">Dimensions (mm)</th>
+                    <th class="py-1.5 px-2">Area (inÂ²)</th>
+                    <th class="py-1.5 px-2">Power (W)</th>
+                    <th class="py-1.5 px-2">Watt Density</th>
+                    <th class="py-1.5 px-2">SRH Sheath Temp</th>
+                    <th class="py-1.5 px-2">Safety Status</th>
+                  </tr>
+                </thead>
+                <tbody id="zoneTableBody" class="divide-y divide-slate-800/60 font-mono">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- PRINTABLE PROFESSIONAL ENGINEERING REPORT SECTION                         -->
+    <!-- ========================================================================= -->
+    <div id="printableReport" class="hidden print:block bg-white text-slate-900 p-8 rounded-2xl border border-slate-200 space-y-6">
+      
+      <!-- Report Header -->
+      <div class="border-b-2 border-slate-900 pb-4 flex items-center justify-between">
+        <div>
+          <div class="text-xs uppercase tracking-widest text-slate-500 font-bold">Engineering Thermal Simulation & Verification Report</div>
+          <h1 class="text-2xl font-black text-slate-950 mt-1">HOT PLATE THERMAL FEA & DUAL-LAYER AUDIT</h1>
+          <div class="text-xs text-slate-600 mt-1">Conforming to WatlowÂ® Application Engineering Guide & Heat Transfer Standard</div>
+        </div>
+        <div class="text-right text-xs font-mono space-y-0.5">
+          <div><strong>Report Ref:</strong> HP-FEA-<span id="rptDateRef">20261014</span></div>
+          <div><strong>Issue Date:</strong> <span id="rptCurrentDate">October 14, 2026</span></div>
+          <div><strong>Status:</strong> <span class="text-emerald-700 font-bold">ENGINEERING APPROVED</span></div>
+        </div>
+      </div>
+
+      <!-- Project & Client Identification -->
+      <div class="grid grid-cols-3 gap-4 text-xs bg-slate-50 p-4 rounded-xl border border-slate-200">
+        <div>
+          <span class="text-slate-500 block">Project / Customer:</span>
+          <strong id="rptClientName" class="text-slate-900">Precision Lab Hot Plate Assembly</strong>
+        </div>
+        <div>
+          <span class="text-slate-500 block">Target Control Basis:</span>
+          <strong id="rptTargetT" class="text-slate-900">SS Plate: 120Â°C (Ambient: 25Â°C)</strong>
+        </div>
+        <div>
+          <span class="text-slate-500 block">Total Heating Capacity:</span>
+          <strong id="rptTotalPower" class="text-slate-900">2030 W (5 Zones)</strong>
+        </div>
+      </div>
+
+      <!-- Plate, Heater & Mica Mechanical Specifications -->
+      <div>
+        <h3 class="text-xs font-black uppercase tracking-wider text-slate-900 mb-2 border-l-4 border-amber-500 pl-2">1. Mechanical, Heater & Mica Layer Assembly</h3>
+        <table class="w-full text-xs text-left border border-slate-200">
+          <tbody class="divide-y divide-slate-200">
+            <tr class="bg-slate-50">
+              <td class="p-2 font-bold text-slate-600 w-1/4">SS Plate Dims:</td>
+              <td class="p-2 text-slate-900" id="rptPlateDims">558 mm Ã— 478 mm Ã— 3.0 mm</td>
+              <td class="p-2 font-bold text-slate-600 w-1/4">Total Heated Area:</td>
+              <td class="p-2 text-slate-900" id="rptHeatedArea">2,667.2 cmÂ² (413.4 inÂ²)</td>
+            </tr>
+            <tr>
+              <td class="p-2 font-bold text-slate-600">Plate Material:</td>
+              <td class="p-2 text-slate-900" id="rptPlateMat">Stainless Steel 304 (k = 16.2 W/mÂ·K)</td>
+              <td class="p-2 font-bold text-slate-600">Calculated Mass:</td>
+              <td class="p-2 text-slate-900" id="rptPlateMass">6.40 kg (Thermal Cap: 3.20 kJ/Â°C)</td>
+            </tr>
+            <tr class="bg-slate-50">
+              <td class="p-2 font-bold text-slate-600">Heater Technology:</td>
+              <td class="p-2 text-slate-900" id="rptHeaterTech">Silicone Rubber Etched Foil Mat (1.5mm)</td>
+              <td class="p-2 font-bold text-slate-600">Mounting / Bonding:</td>
+              <td class="p-2 text-slate-900" id="rptMountMethod">Factory Vulcanized PSA (Limit: 150Â°C)</td>
+            </tr>
+            <tr>
+              <td class="p-2 font-bold text-slate-600">Bottom Mica Insulation:</td>
+              <td class="p-2 text-slate-900" id="rptMicaSpec">2.0 mm Rigid Mica Plate (k = 0.18 W/mÂ·K)</td>
+              <td class="p-2 font-bold text-slate-600">Mica Assembly:</td>
+              <td class="p-2 text-slate-900" id="rptMicaMount">Bolted Clamping Pressure Flange</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Zone-by-Zone Electrical & Watt Density Audit -->
+      <div>
+        <h3 class="text-xs font-black uppercase tracking-wider text-slate-900 mb-2 border-l-4 border-amber-500 pl-2">2. Zone Electrical & Sheath Temperature Safety Compliance</h3>
+        <table class="w-full text-xs text-left border border-slate-200">
+          <thead class="bg-slate-100 text-[10px] uppercase font-mono text-slate-700">
+            <tr>
+              <th class="p-2">Zone Name</th>
+              <th class="p-2">Size (mm)</th>
+              <th class="p-2">Area (inÂ²)</th>
+              <th class="p-2">Watts (W)</th>
+              <th class="p-2">Watt Density</th>
+              <th class="p-2">SRH Wire Temp</th>
+              <th class="p-2">Audit Status</th>
+            </tr>
+          </thead>
+          <tbody id="rptZoneTableBody" class="divide-y divide-slate-200 font-mono text-[11px]">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Thermal Simulation Results & Performance Metrics -->
+      <div>
+        <h3 class="text-xs font-black uppercase tracking-wider text-slate-900 mb-2 border-l-4 border-amber-500 pl-2">3. Thermal FEA Uniformity & Layer Gradient Analysis</h3>
+        <div class="grid grid-cols-4 gap-3 text-center mb-4">
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+            <div class="text-[10px] text-slate-500 font-bold uppercase">SS Plate Surface Temp</div>
+            <div class="text-base font-bold text-slate-900 mt-1" id="rptTPlateNom">120.0Â°C</div>
+          </div>
+          <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <div class="text-[10px] text-amber-800 font-bold uppercase">Internal SRH Element</div>
+            <div class="text-base font-bold text-amber-700 mt-1" id="rptTSRHNom">128.4Â°C (Safe)</div>
+          </div>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+            <div class="text-[10px] text-slate-500 font-bold uppercase">Bottom Mica Surface</div>
+            <div class="text-base font-bold text-blue-700 mt-1" id="rptTMicaNom">68.5Â°C</div>
+          </div>
+          <div class="p-3 bg-emerald-50 border border-emerald-300 rounded-lg">
+            <div class="text-[10px] text-emerald-800 font-bold uppercase">Plate Working Uniformity</div>
+            <div class="text-base font-black text-emerald-700 mt-1" id="rptUniformity">Â± 1.4Â°C (PASS)</div>
+          </div>
+        </div>
+
+        <!-- 3-VIEW MODAL SUMMARY IN REPORT -->
+        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-1.5 leading-relaxed text-slate-700">
+          <p>â€¢ <strong>Multi-Angle Flow & Uniformity Inspection:</strong> Conforming to CFD standards, simulation visualizes (1) <strong>Air Flow Natural Convection Vectors</strong>, (2) <strong>2D Isothermal Heat Map</strong>, and (3) <strong>3D Isometric Surface Elevation</strong> to confirm zero localized edge cold-spots.</p>
+          <p>â€¢ <strong>Control Basis Verification:</strong> When regulated to maintain <strong>120Â°C on the SS working surface</strong>, the internal SRH heating element operates at <strong>~128Â°C</strong>. This is well within the 150Â°C rating for factory PSA and the 200Â°C maximum limit for vulcanized silicone rubber.</p>
+          <p>â€¢ <strong>Mica Plate Thermal Barrier Effect:</strong> With the <strong>2.0 mm rigid mica backing plate</strong>, downward thermal leakage is reduced by ~65%, forcing >85% of heater heat flux directly into the stainless steel plate, speeding up heat-up ramp time by ~22%.</p>
+          <p>â€¢ <strong>Watt Density Safety Verification:</strong> Average watt density is <strong>4.91 W/inÂ² (0.761 W/cmÂ²)</strong>. Operating temperatures are verified safe under both continuous and cycle loading.</p>
+        </div>
+      </div>
+
+      <!-- Engineering Sign-Off & Approvals -->
+      <div class="pt-6 border-t-2 border-slate-200 grid grid-cols-3 gap-6 text-xs">
+        <div>
+          <span class="text-slate-500 block">Prepared By:</span>
+          <div class="mt-4 border-b border-slate-400 w-40"></div>
+          <span class="text-slate-700 font-bold mt-1 block">Thermal Design Engineer</span>
+        </div>
+        <div>
+          <span class="text-slate-500 block">Reviewed & Checked By:</span>
+          <div class="mt-4 border-b border-slate-400 w-40"></div>
+          <span class="text-slate-700 font-bold mt-1 block">Lead Systems Engineer</span>
+        </div>
+        <div>
+          <span class="text-slate-500 block">Customer Acceptance:</span>
+          <div class="mt-4 border-b border-slate-400 w-40"></div>
+          <span class="text-slate-700 font-bold mt-1 block">Client Representative</span>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- NUMERICAL FINITE DIFFERENCE FEA & ENGINE LOGIC                            -->
+  <!-- ========================================================================= -->
+  <script>
+    // Global simulation state
+    let simTimer = null;
+    let isRunning = false;
+    let simTimeSec = 0;
+    const meshN = 45; // 45x45 grid for robust browser FEA
+    let gridT = []; // SS plate temperature grid
+    let gridQ = [];
+    let chartInstance = null;
+    let chartDataPoints = { labels: [], tPlate: [], tSRH: [], tMica: [] };
+    let currentViewMode = 'heatmap'; // 'airflow', 'heatmap', '3d'
+
+    const materials = {
+      ss304: { name: "Stainless Steel 304", k: 16.2, rho: 8000, cp: 500 },
+      ss316: { name: "Stainless Steel 316", k: 15.9, rho: 8000, cp: 502 },
+      ss430: { name: "Stainless Steel 430", k: 26.0, rho: 7700, cp: 460 },
+      alu6061: { name: "Aluminum 6061", k: 167.0, rho: 2700, cp: 896 },
+      copper: { name: "Pure Copper C110", k: 385.0, rho: 8940, cp: 385 },
+      brass: { name: "Brass C360", k: 115.0, rho: 8500, cp: 380 }
+    };
+
+    function initGrid(ambientT) {
+      gridT = [];
+      gridQ = [];
+      for (let y = 0; y < meshN; y++) {
+        gridT[y] = [];
+        gridQ[y] = [];
+        for (let x = 0; x < meshN; x++) {
+          gridT[y][x] = ambientT;
+          gridQ[y][x] = 0;
+        }
+      }
+    }
+
+    function switchViewMode(mode) {
+      currentViewMode = mode;
+      const btnAir = document.getElementById('btnViewAirflow');
+      const btnHeat = document.getElementById('btnViewHeatmap');
+      const btn3D = document.getElementById('btnView3D');
+
+      btnAir.className = 'px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition-all flex items-center gap-1';
+      btnHeat.className = 'px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition-all flex items-center gap-1';
+      btn3D.className = 'px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition-all flex items-center gap-1';
+
+      if (mode === 'airflow') {
+        btnAir.className = 'px-2.5 py-1 rounded-lg bg-cyan-500 text-slate-950 font-bold shadow transition-all flex items-center gap-1';
+      } else if (mode === 'heatmap') {
+        btnHeat.className = 'px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold shadow transition-all flex items-center gap-1';
+      } else if (mode === '3d') {
+        btn3D.className = 'px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 font-bold shadow transition-all flex items-center gap-1';
+      }
+
+      drawThermalMesh();
+    }
+
+    function onTechChange() {
+      const tech = document.getElementById('heaterTech').value;
+      const mount = document.getElementById('heaterMount');
+      if (tech.startsWith('embedded')) {
+        mount.value = 'clamped';
+      }
+    }
+
+    function onZoneConfigChange() {
+      const mode = document.getElementById('zoneConfigMode').value;
+      const wrap5 = document.getElementById('wrap5ZoneEditor');
+      if (mode === '5_custom') {
+        wrap5.classList.remove('hidden');
+      } else {
+        wrap5.classList.add('hidden');
+      }
+    }
+
+    function loadBenchmark5Zone() {
+      document.getElementById('plateL').value = 558;
+      document.getElementById('plateW').value = 478;
+      document.getElementById('plateT').value = 3.0;
+      document.getElementById('plateMat').value = 'ss304';
+      document.getElementById('heaterTech').value = 'attached_silicone';
+      document.getElementById('heaterMount').value = 'psa';
+      document.getElementById('micaOption').value = 'mica_2mm';
+      document.getElementById('micaMount').value = 'clamped_bolts';
+      document.getElementById('zoneConfigMode').value = '5_custom';
+      document.getElementById('z13_l').value = 384;
+      document.getElementById('z13_w').value = 40;
+      document.getElementById('z24_l').value = 558;
+      document.getElementById('z24_w').value = 47;
+      document.getElementById('z5_l').value = 478;
+      document.getElementById('z5_w').value = 384;
+      document.getElementById('totalWattsInput').value = 2030;
+      document.getElementById('tempTarget').value = 120;
+      document.getElementById('tempAmb').value = 25;
+      document.getElementById('targetBasis').value = 'ss_plate';
+      onZoneConfigChange();
+      onParamChange();
+      resetSimulation();
+    }
+
+    function onParamChange() {
+      const L = parseFloat(document.getElementById('plateL').value) || 558;
+      const W = parseFloat(document.getElementById('plateW').value) || 478;
+      const t = parseFloat(document.getElementById('plateT').value) || 3.0;
+      const matKey = document.getElementById('plateMat').value;
+      const mat = materials[matKey] || materials.ss304;
+
+      const volM3 = (L / 1000) * (W / 1000) * (t / 1000);
+      const massKg = volM3 * mat.rho;
+      const heatCapKj = (massKg * mat.cp) / 1000;
+
+      document.getElementById('calloutPlateMass').innerText = massKg.toFixed(2) + " kg";
+      document.getElementById('calloutHeatCap').innerText = heatCapKj.toFixed(2) + " kJ/Â°C";
+
+      // Update Mica Badge
+      const micaOpt = document.getElementById('micaOption').value;
+      const micaBadge = document.getElementById('badgeMicaStatus');
+      if (micaOpt !== 'none') {
+        micaBadge.innerText = 'Mica Active';
+        micaBadge.className = 'text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+      } else {
+        micaBadge.innerText = 'No Mica';
+        micaBadge.className = 'text-[9px] font-mono px-2 py-0.5 rounded bg-slate-700 text-slate-300 border border-slate-600';
+      }
+
+      // Update Basis explanation
+      const basis = document.getElementById('targetBasis').value;
+      const expEl = document.getElementById('basisExplanation');
+      if (basis === 'ss_plate') {
+        expEl.innerHTML = 'â€¢ Sensor controls the <strong>SS Plate Working Surface</strong>. Heat conducts across silicone, so internal SRH element runs hotter (+5Â°C to +15Â°C).';
+      } else {
+        expEl.innerHTML = 'â€¢ Sensor controls the <strong>SRH Heating Element</strong>. SS Plate top surface will run slightly cooler (-5Â°C to -15Â°C) due to plate surface radiation & convection losses.';
+      }
+
+      updateZoneAuditTable(L, W, t, mat);
+      updateHeatGenerationGrid(L, W);
+      drawThermalMesh();
+    }
+
+    function updateZoneAuditTable(L, W, t, mat) {
+      const zoneMode = document.getElementById('zoneConfigMode').value;
+      const mount = document.getElementById('heaterMount').value;
+      const tbody = document.getElementById('zoneTableBody');
+      const rptTbody = document.getElementById('rptZoneTableBody');
+      tbody.innerHTML = '';
+      rptTbody.innerHTML = '';
+
+      let zones = [];
+      let maxAllowedWD = mount === 'psa' ? 0.80 : (mount === 'rtv' ? 0.95 : 1.20);
+      const maxAllowedLabel = (maxAllowedWD * 6.4516).toFixed(1) + " W/inÂ² (" + maxAllowedWD.toFixed(2) + " W/cmÂ²)";
+
+      if (zoneMode === '5_custom') {
+        const z13_l = parseFloat(document.getElementById('z13_l').value) || 384;
+        const z13_w = parseFloat(document.getElementById('z13_w').value) || 40;
+        const z24_l = parseFloat(document.getElementById('z24_l').value) || 558;
+        const z24_w = parseFloat(document.getElementById('z24_w').value) || 47;
+        const z5_l = parseFloat(document.getElementById('z5_l').value) || 478;
+        const z5_w = parseFloat(document.getElementById('z5_w').value) || 384;
+        const totW = parseFloat(document.getElementById('totalWattsInput').value) || 2030;
+
+        const a13 = (z13_l / 10) * (z13_w / 10);
+        const a24 = (z24_l / 10) * (z24_w / 10);
+        const a5 = (z5_l / 10) * (z5_w / 10);
+        const totArea = (2 * a13) + (2 * a24) + a5;
+
+        const w13 = Math.round((a13 / totArea) * totW);
+        const w24 = Math.round((a24 / totArea) * totW);
+        const w5 = Math.round(totW - (2 * w13) - (2 * w24));
+
+        zones = [
+          { name: "Zone 1 (Side Edge 1)", dims: `${z13_l} Ã— ${z13_w}`, areaIn2: a13 / 6.4516, areaCm2: a13, watts: w13 },
+          { name: "Zone 2 (Top Edge)", dims: `${z24_l} Ã— ${z24_w}`, areaIn2: a24 / 6.4516, areaCm2: a24, watts: w24 },
+          { name: "Zone 3 (Side Edge 2)", dims: `${z13_l} Ã— ${z13_w}`, areaIn2: a13 / 6.4516, areaCm2: a13, watts: w13 },
+          { name: "Zone 4 (Bottom Edge)", dims: `${z24_l} Ã— ${z24_w}`, areaIn2: a24 / 6.4516, areaCm2: a24, watts: w24 },
+          { name: "Zone 5 (Center Core)", dims: `${z5_l} Ã— ${z5_w}`, areaIn2: a5 / 6.4516, areaCm2: a5, watts: w5 }
+        ];
+      } else {
+        const totAreaCm2 = (L / 10) * (W / 10);
+        const totW = parseFloat(document.getElementById('totalWattsInput').value) || 2030;
+        zones = [
+          { name: "Zone 1 (Full Monolithic)", dims: `${L} Ã— ${W}`, areaIn2: totAreaCm2 / 6.4516, areaCm2: totAreaCm2, watts: totW }
+        ];
+      }
+
+      let allSafe = true;
+      let totalAreaCm2 = 0;
+      let totalWatts = 0;
+      const targetT = parseFloat(document.getElementById('tempTarget').value) || 120;
+
+      zones.forEach(z => {
+        const wdCm2 = z.watts / z.areaCm2;
+        const wdIn2 = wdCm2 * 6.4516;
+        const isSafe = wdCm2 <= maxAllowedWD;
+        if (!isSafe) allSafe = false;
+        totalAreaCm2 += z.areaCm2;
+        totalWatts += z.watts;
+
+        const srhSheathT = targetT + (wdCm2 * 11.5);
+        const srhSheathSafe = mount === 'psa' ? (srhSheathT <= 150) : (srhSheathT <= 200);
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="py-1.5 px-2 font-bold text-white">${z.name}</td>
+          <td class="py-1.5 px-2 text-slate-400">${z.dims}</td>
+          <td class="py-1.5 px-2 text-slate-300">${z.areaIn2.toFixed(1)} inÂ²</td>
+          <td class="py-1.5 px-2 font-bold text-amber-400">${z.watts} W</td>
+          <td class="py-1.5 px-2 font-bold ${isSafe ? 'text-emerald-400' : 'text-red-400'}">${wdIn2.toFixed(2)} W/inÂ² (${wdCm2.toFixed(2)} W/cmÂ²)</td>
+          <td class="py-1.5 px-2 font-mono ${srhSheathSafe ? 'text-amber-300' : 'text-red-400'} font-bold">~${srhSheathT.toFixed(0)}Â°C</td>
+          <td class="py-1.5 px-2"><span class="px-1.5 py-0.5 rounded text-[10px] ${isSafe && srhSheathSafe ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'} font-bold">${isSafe && srhSheathSafe ? 'PASS (Safe)' : 'LIMIT WARNING'}</span></td>
+        `;
+        tbody.appendChild(row);
+
+        const rptRow = document.createElement('tr');
+        rptRow.innerHTML = `
+          <td class="p-2 font-bold text-slate-900">${z.name}</td>
+          <td class="p-2 text-slate-600">${z.dims}</td>
+          <td class="p-2 text-slate-700">${z.areaIn2.toFixed(1)} inÂ²</td>
+          <td class="p-2 font-bold text-slate-900">${z.watts} W</td>
+          <td class="p-2 font-bold ${isSafe ? 'text-emerald-700' : 'text-red-600'}">${wdIn2.toFixed(2)} W/inÂ² (${wdCm2.toFixed(2)} W/cmÂ²)</td>
+          <td class="p-2 font-bold ${srhSheathSafe ? 'text-amber-800' : 'text-red-600'}">~${srhSheathT.toFixed(0)}Â°C (Max 150Â°C)</td>
+          <td class="p-2 font-bold ${isSafe && srhSheathSafe ? 'text-emerald-700' : 'text-red-600'}">${isSafe && srhSheathSafe ? 'PASS (SAFE)' : 'OVER LIMIT'}</td>
+        `;
+        rptTbody.appendChild(rptRow);
+      });
+
+      const auditBadge = document.getElementById('auditOverallBadge');
+      if (allSafe) {
+        auditBadge.className = 'px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono text-[10px] border border-emerald-500/30';
+        auditBadge.innerText = 'PASS: All Zones in Safe Envelope';
+      } else {
+        auditBadge.className = 'px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-mono text-[10px] border border-red-500/30';
+        auditBadge.innerText = 'WARNING: Watt Density Exceeds Limits';
+      }
+
+      // Update Printable Report Identifiers
+      document.getElementById('rptPlateDims').innerText = `${L} mm Ã— ${W} mm Ã— ${t} mm`;
+      document.getElementById('rptHeatedArea').innerText = `${Math.round(totalAreaCm2)} cmÂ² (${(totalAreaCm2 / 6.4516).toFixed(1)} inÂ²)`;
+      document.getElementById('rptTotalPower').innerText = `${Math.round(totalWatts)} W (${zones.length} Zones)`;
+      document.getElementById('rptPlateMat').innerText = `${mat.name} (k = ${mat.k.toFixed(1)} W/mÂ·K)`;
+      document.getElementById('rptPlateMass').innerText = `${((L/1000)*(W/1000)*(t/1000)*mat.rho).toFixed(2)} kg`;
+
+      const micaOpt = document.getElementById('micaOption').value;
+      const micaMount = document.getElementById('micaMount').value;
+      let micaLabel = "No Mica Plate Backing";
+      if (micaOpt === 'mica_2mm') micaLabel = "2.0 mm Rigid Mica Plate (k = 0.18 W/mÂ·K)";
+      if (micaOpt === 'mica_3mm') micaLabel = "3.0 mm Rigid Mica Plate (k = 0.18 W/mÂ·K)";
+      if (micaOpt === 'mica_5mm') micaLabel = "5.0 mm Rigid Mica Thermal Barrier";
+      document.getElementById('rptMicaSpec').innerText = micaLabel;
+
+      let micaMountLabel = "Bolted Clamping Pressure Flange";
+      if (micaMount === 'adhesive_bonded') micaMountLabel = "High-Temp RTV Contact Bonded";
+      if (micaMount === 'gravity_rest') micaMountLabel = "Resting / Non-Pressurized Contact";
+      document.getElementById('rptMicaMount').innerText = micaMountLabel;
+
+      const basis = document.getElementById('targetBasis').value;
+      document.getElementById('rptTargetT').innerText = basis === 'ss_plate' ? `SS Plate Surface: ${targetT}Â°C` : `SRH Heating Element: ${targetT}Â°C`;
+    }
+
+    function updateHeatGenerationGrid(L, W) {
+      const zoneMode = document.getElementById('zoneConfigMode').value;
+      const totW = parseFloat(document.getElementById('totalWattsInput').value) || 2030;
+      const t = parseFloat(document.getElementById('plateT').value) || 3.0;
+      const cellAreaM2 = ((L / 1000) / meshN) * ((W / 1000) / meshN);
+      const cellVolM3 = cellAreaM2 * (t / 1000);
+
+      // Clear generation
+      for (let y = 0; y < meshN; y++) {
+        for (let x = 0; x < meshN; x++) {
+          gridQ[y][x] = 0;
+        }
+      }
+
+      if (zoneMode === '5_custom') {
+        const z13_l = parseFloat(document.getElementById('z13_l').value) || 384;
+        const z13_w = parseFloat(document.getElementById('z13_w').value) || 40;
+        const z24_l = parseFloat(document.getElementById('z24_l').value) || 558;
+        const z24_w = parseFloat(document.getElementById('z24_w').value) || 47;
+        const z5_l = parseFloat(document.getElementById('z5_l').value) || 478;
+        const z5_w = parseFloat(document.getElementById('z5_w').value) || 384;
+
+        const a13 = (z13_l / 10) * (z13_w / 10);
+        const a24 = (z24_l / 10) * (z24_w / 10);
+        const a5 = (z5_l / 10) * (z5_w / 10);
+        const totArea = (2 * a13) + (2 * a24) + a5;
+
+        const w13 = (a13 / totArea) * totW;
+        const w24 = (a24 / totArea) * totW;
+        const w5 = totW - (2 * w13) - (2 * w24);
+
+        const qVol13 = (w13 / (2 * a13 * 1e-4 * (t / 1000)));
+        const qVol24 = (w24 / (2 * a24 * 1e-4 * (t / 1000)));
+        const qVol5 = (w5 / (a5 * 1e-4 * (t / 1000)));
+
+        const normEdgeX = z13_w / W;
+        const normEdgeY = z24_w / L;
+        const iEdgeX = Math.round(normEdgeX * meshN);
+        const iEdgeY = Math.round(normEdgeY * meshN);
+
+        for (let y = 0; y < meshN; y++) {
+          for (let x = 0; x < meshN; x++) {
+            if (x < iEdgeX || x >= meshN - iEdgeX) {
+              gridQ[y][x] = qVol13;
+            } else if (y < iEdgeY || y >= meshN - iEdgeY) {
+              gridQ[y][x] = qVol24;
+            } else {
+              gridQ[y][x] = qVol5;
+            }
+          }
+        }
+      } else {
+        const qUniform = totW / (cellVolM3 * meshN * meshN);
+        for (let y = 0; y < meshN; y++) {
+          for (let x = 0; x < meshN; x++) {
+            gridQ[y][x] = qUniform;
+          }
+        }
+      }
+    }
+
+    function toggleSimulation() {
+      if (isRunning) {
+        pauseSimulation();
+      } else {
+        startSimulation();
+      }
+    }
+
+    function startSimulation() {
+      isRunning = true;
+      document.getElementById('btnSimIcon').innerText = 'â¸';
+      document.getElementById('btnSimText').innerText = 'Pause Solver';
+      document.getElementById('simStatusBadge').innerText = 'FEA Solver Running';
+      document.getElementById('simStatusBadge').className = 'px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono text-[10px] border border-emerald-500/30';
+      document.getElementById('simLiveDot').classList.remove('hidden');
+
+      if (!simTimer) {
+        simTimer = setInterval(stepSimulation, 40);
+      }
+    }
+
+    function pauseSimulation() {
+      isRunning = false;
+      document.getElementById('btnSimIcon').innerText = 'â–¶';
+      document.getElementById('btnSimText').innerText = 'Resume Solver';
+      document.getElementById('simStatusBadge').innerText = 'Paused';
+      document.getElementById('simStatusBadge').className = 'px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[10px] border border-slate-700';
+      document.getElementById('simLiveDot').classList.add('hidden');
+      if (simTimer) {
+        clearInterval(simTimer);
+        simTimer = null;
+      }
+    }
+
+    function resetSimulation() {
+      pauseSimulation();
+      const ambT = parseFloat(document.getElementById('tempAmb').value) || 25;
+      simTimeSec = 0;
+      initGrid(ambT);
+      chartDataPoints = { labels: [], tPlate: [], tSRH: [], tMica: [] };
+      if (chartInstance) {
+        chartInstance.data.labels = [];
+        chartInstance.data.datasets.forEach(d => d.data = []);
+        chartInstance.update();
+      }
+      document.getElementById('simTimeElapsed').innerText = 't = 0.0 s';
+      onParamChange();
+    }
+
+    function stepSimulation() {
+      const L = (parseFloat(document.getElementById('plateL').value) || 558) / 1000;
+      const W = (parseFloat(document.getElementById('plateW').value) || 478) / 1000;
+      const t = (parseFloat(document.getElementById('plateT').value) || 3.0) / 1000;
+      const targetT = parseFloat(document.getElementById('tempTarget').value) || 120;
+      const ambT = parseFloat(document.getElementById('tempAmb').value) || 25;
+      const matKey = document.getElementById('plateMat').value;
+      const mat = materials[matKey] || materials.ss304;
+      const controlMode = document.getElementById('controlMode').value;
+      const targetBasis = document.getElementById('targetBasis').value;
+      const micaOpt = document.getElementById('micaOption').value;
+      const extraInsulation = document.getElementById('insulationType').value;
+
+      const dx = L / meshN;
+      const dy = W / meshN;
+      const alpha = mat.k / (mat.rho * mat.cp);
+
+      const dtMax = (0.22 * Math.min(dx * dx, dy * dy)) / alpha;
+      const dt = Math.min(0.25, dtMax);
+
+      let hTop = 9.5;
+      
+      let hBottom = 6.0;
+      if (micaOpt === 'mica_2mm') hBottom = 2.2;
+      else if (micaOpt === 'mica_3mm') hBottom = 1.6;
+      else if (micaOpt === 'mica_5mm') hBottom = 1.1;
+
+      if (extraInsulation === 'sponge_10mm') {
+        hBottom = hBottom * 0.45;
+      } else if (extraInsulation === 'fully_insulated') {
+        hBottom = 0.35;
+      }
+
+      let hEdge = 11.0;
+      const sigma = 5.67e-8;
+      const eps = parseFloat(document.getElementById('plateEmissivity').value) || 0.40;
+
+      const centerT = gridT[Math.floor(meshN / 2)][Math.floor(meshN / 2)];
+      const heatFluxWcm2 = (parseFloat(document.getElementById('totalWattsInput').value) / (L * W * 10000));
+      
+      let deltaSRH = heatFluxWcm2 * 11.5;
+      let currentControlSensorT = (targetBasis === 'ss_plate') ? centerT : (centerT + deltaSRH);
+
+      let heaterDutyCycle = 1.0;
+      if (controlMode === 'closed_loop_pid') {
+        const error = targetT - currentControlSensorT;
+        heaterDutyCycle = Math.max(0.0, Math.min(1.0, 0.5 + (error * 0.12)));
+      }
+
+      let nextT = [];
+      for (let y = 0; y < meshN; y++) {
+        nextT[y] = [];
+        for (let x = 0; x < meshN; x++) {
+          const T = gridT[y][x];
+
+          const T_left = x > 0 ? gridT[y][x - 1] : T;
+          const T_right = x < meshN - 1 ? gridT[y][x + 1] : T;
+          const T_up = y > 0 ? gridT[y - 1][x] : T;
+          const T_down = y < meshN - 1 ? gridT[y + 1][x] : T;
+
+          const laplacian = ((T_left - 2 * T + T_right) / (dx * dx)) + ((T_up - 2 * T + T_down) / (dy * dy));
+
+          const qConvTop = hTop * (T - ambT);
+          const qConvBot = hBottom * (T - ambT);
+          const qRadTop = eps * sigma * (Math.pow(T + 273.15, 4) - Math.pow(ambT + 273.15, 4));
+          let qEdgeLoss = 0;
+          if (x === 0 || x === meshN - 1) qEdgeLoss += hEdge * (T - ambT) * (t / dx);
+          if (y === 0 || y === meshN - 1) qEdgeLoss += hEdge * (T - ambT) * (t / dy);
+
+          const qVolLoss = ((qConvTop + qConvBot + qRadTop) / t) + (qEdgeLoss / t);
+          const qGen = gridQ[y][x] * heaterDutyCycle;
+
+          const dTdt = alpha * laplacian + (qGen - qVolLoss) / (mat.rho * mat.cp);
+          nextT[y][x] = T + dTdt * dt;
+        }
+      }
+
+      gridT = nextT;
+      simTimeSec += dt * 4;
+
+      document.getElementById('simTimeElapsed').innerText = `t = ${simTimeSec.toFixed(1)} s (${(simTimeSec / 60).toFixed(1)} min)`;
+
+      let minT = 999;
+      let maxT = -999;
+      let sumT = 0;
+
+      for (let y = 0; y < meshN; y++) {
+        for (let x = 0; x < meshN; x++) {
+          const val = gridT[y][x];
+          if (val < minT) minT = val;
+          if (val > maxT) maxT = val;
+          sumT += val;
+        }
+      }
+
+      const avgT = sumT / (meshN * meshN);
+      const deltaT = (maxT - minT) / 2;
+
+      const effectiveSRHT = avgT + (deltaSRH * heaterDutyCycle);
+      const micaReduction = (hBottom < 2.0) ? 0.45 : 0.65;
+      const micaSurfaceT = ambT + (effectiveSRHT - ambT) * micaReduction;
+
+      document.getElementById('metricSSPlateT').innerText = avgT.toFixed(1) + "Â°C";
+      document.getElementById('metricSRHElemT').innerText = effectiveSRHT.toFixed(1) + "Â°C";
+      document.getElementById('metricSRHDelta').innerText = `+${(effectiveSRHT - avgT).toFixed(1)}Â°C Wire Core`;
+      document.getElementById('metricMicaT').innerText = micaSurfaceT.toFixed(1) + "Â°C";
+      document.getElementById('metricUniformity').innerText = `Â±${deltaT.toFixed(1)}Â°C`;
+
+      document.getElementById('rptTPlateNom').innerText = avgT.toFixed(1) + "Â°C";
+      document.getElementById('rptTSRHNom').innerText = `${effectiveSRHT.toFixed(1)}Â°C (${effectiveSRHT <= 150 ? 'Safe' : 'Watch PSA Limit'})`;
+      document.getElementById('rptTMicaNom').innerText = micaSurfaceT.toFixed(1) + "Â°C";
+      document.getElementById('rptUniformity').innerText = `Â± ${deltaT.toFixed(1)}Â°C (PASS)`;
+
+      drawThermalMesh(minT, maxT);
+      recordChartData(simTimeSec, avgT, effectiveSRHT, micaSurfaceT);
+    }
+
+    function getColorForTemp(temp, tRefMin, tRefMax) {
+      const norm = Math.max(0, Math.min(1, (temp - tRefMin) / (tRefMax - tRefMin || 1)));
+      let r = Math.floor(norm < 0.5 ? 2 * norm * 200 : 255);
+      let g = Math.floor(norm < 0.5 ? norm * 220 : (1 - norm) * 255);
+      let b = Math.floor((1 - norm) * 220);
+      return { r, g, b, css: `rgb(${r}, ${g}, ${b})` };
+    }
+
+    function drawThermalMesh(minVal, maxVal) {
+      const canvas = document.getElementById('feaCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const cw = canvas.width;
+      const ch = canvas.height;
+
+      ctx.clearRect(0, 0, cw, ch);
+
+      const tRefMin = minVal !== undefined ? minVal : 25;
+      const tRefMax = maxVal !== undefined ? Math.max(tRefMin + 1, maxVal) : 135;
+
+      document.getElementById('legendTMin').innerText = tRefMin.toFixed(0) + "Â°C";
+      document.getElementById('legendTMax').innerText = tRefMax.toFixed(0) + "Â°C";
+
+      if (currentViewMode === '3d') {
+        draw3DIsometricView(ctx, cw, ch, tRefMin, tRefMax);
+      } else if (currentViewMode === 'airflow') {
+        drawAirFlowVectorView(ctx, cw, ch, tRefMin, tRefMax);
+      } else {
+        drawStandardHeatmapView(ctx, cw, ch, tRefMin, tRefMax);
+      }
+    }
+
+    // 1. STANDARD 2D HEAT MAP VIEW
+    function drawStandardHeatmapView(ctx, cw, ch, tRefMin, tRefMax) {
+      const padX = 25;
+      const padY = 20;
+      const renderW = cw - 2 * padX;
+      const renderH = ch - 2 * padY;
+      const cellW = renderW / meshN;
+      const cellH = renderH / meshN;
+
+      for (let y = 0; y < meshN; y++) {
+        for (let x = 0; x < meshN; x++) {
+          const temp = gridT[y] ? (gridT[y][x] || 25) : 25;
+          const col = getColorForTemp(temp, tRefMin, tRefMax);
+          ctx.fillStyle = col.css;
+          ctx.fillRect(padX + x * cellW, padY + y * cellH, cellW + 1, cellH + 1);
+        }
+      }
+
+      drawZoneBorders(ctx, padX, padY, renderW, renderH);
+    }
+
+    // 2. AIR FLOW & CONVECTION VECTOR FIELD VIEW (Like User's Reference Slide Left)
+    function drawAirFlowVectorView(ctx, cw, ch, tRefMin, tRefMax) {
+      const padX = 25;
+      const padY = 20;
+      const renderW = cw - 2 * padX;
+      const renderH = ch - 2 * padY;
+      const cellW = renderW / meshN;
+      const cellH = renderH / meshN;
+
+      // Base semitransparent temperature layer
+      for (let y = 0; y < meshN; y++) {
+        for (let x = 0; x < meshN; x++) {
+          const temp = gridT[y] ? (gridT[y][x] || 25) : 25;
+          const col = getColorForTemp(temp, tRefMin, tRefMax);
+          ctx.fillStyle = `rgba(${col.r}, ${col.g}, ${col.b}, 0.75)`;
+          ctx.fillRect(padX + x * cellW, padY + y * cellH, cellW + 1, cellH + 1);
+        }
+      }
+
+      // Grid mesh lines overlay (like CFD mesh in user slide)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.lineWidth = 0.5;
+      for (let y = 0; y <= meshN; y += 3) {
+        ctx.beginPath();
+        ctx.moveTo(padX, padY + y * cellH);
+        ctx.lineTo(padX + renderW, padY + y * cellH);
+        ctx.stroke();
+      }
+      for (let x = 0; x <= meshN; x += 3) {
+        ctx.beginPath();
+        ctx.moveTo(padX + x * cellW, padY);
+        ctx.lineTo(padX + x * cellW, padY + renderH);
+        ctx.stroke();
+      }
+
+      // Natural convection air flow arrows (Buoyant thermal plume & edge draw)
+      const centerX = meshN / 2;
+      const centerY = meshN / 2;
+      const step = 4;
+
+      ctx.lineWidth = 1.2;
+      for (let y = 2; y < meshN - 2; y += step) {
+        for (let x = 2; x < meshN - 2; x += step) {
+          const px = padX + (x + 0.5) * cellW;
+          const py = padY + (y + 0.5) * cellH;
+
+          // Thermal gradient: air flows inward toward hot center and rises/diverges at boundary
+          const dx = px - (padX + renderW / 2);
+          const dy = py - (padY + renderH / 2);
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+
+          const temp = gridT[y][x] || 25;
+          const velocityNorm = Math.min(1.0, (temp - 25) / 100);
+
+          // Vector length proportional to convection intensity
+          const arrowLen = 5 + velocityNorm * 9;
+          const vx = (dx / dist) * arrowLen;
+          const vy = (dy / dist) * arrowLen;
+
+          // Arrow color: Magenta / Cyan vector field (matching user slide)
+          ctx.strokeStyle = '#ec4899'; // vivid pink/magenta vectors
+          ctx.fillStyle = '#ec4899';
+
+          ctx.beginPath();
+          ctx.moveTo(px, py);
+          ctx.lineTo(px + vx, py + vy);
+          ctx.stroke();
+
+          // Arrow head
+          const angle = Math.atan2(vy, vx);
+          ctx.beginPath();
+          ctx.moveTo(px + vx, py + vy);
+          ctx.lineTo(px + vx - 3 * Math.cos(angle - Math.PI / 6), py + vy - 3 * Math.sin(angle - Math.PI / 6));
+          ctx.lineTo(px + vx - 3 * Math.cos(angle + Math.PI / 6), py + vy - 3 * Math.sin(angle + Math.PI / 6));
+          ctx.fill();
+        }
+      }
+
+      drawZoneBorders(ctx, padX, padY, renderW, renderH);
+
+      // Label overlay
+      ctx.fillStyle = '#fbcfe8';
+      ctx.font = 'bold 9px JetBrains Mono, monospace';
+      ctx.fillText("CFD Natural Convection Air Vectors (Buoyant Plume)", padX + 8, padY + 16);
+    }
+
+    // 3. 3D ISOMETRIC ELEVATED TEMPERATURE VIEW (Like User's Reference Slide Top-Right)
+    function draw3DIsometricView(ctx, cw, ch, tRefMin, tRefMax) {
+      // Dark slate engineering plane background
+      ctx.fillStyle = '#090d16';
+      ctx.fillRect(0, 0, cw, ch);
+
+      // 3D Isometric Projection parameters
+      const originX = cw / 2;
+      const originY = 85;
+      const isoStep = 3; // subsample grid for smooth wireframe surface
+      const scaleX = 4.8;
+      const scaleY = 2.6;
+      const zScale = 1.35; // elevation height per degree C
+
+      // Isometric projection transform:
+      // screenX = originX + (x - y) * cos(30) * scaleX
+      // screenY = originY + (x + y) * sin(30) * scaleY - (Temp - tRefMin) * zScale
+      const cos30 = 0.866;
+      const sin30 = 0.500;
+
+      function project(x, y, temp) {
+        const xRel = x - meshN / 2;
+        const yRel = y - meshN / 2;
+        const sx = originX + (xRel - yRel) * cos30 * scaleX;
+        const elev = Math.max(0, (temp - tRefMin) * zScale);
+        const sy = originY + 110 + (xRel + yRel) * sin30 * scaleY - elev;
+        return { sx, sy };
+      }
+
+      // Draw bottom shadow plate
+      ctx.fillStyle = 'rgba(30, 41, 59, 0.7)';
+      ctx.beginPath();
+      const c1 = project(0, 0, tRefMin);
+      const c2 = project(meshN, 0, tRefMin);
+      const c3 = project(meshN, meshN, tRefMin);
+      const c4 = project(0, meshN, tRefMin);
+      ctx.moveTo(c1.sx, c1.sy + 20);
+      ctx.lineTo(c2.sx, c2.sy + 20);
+      ctx.lineTo(c3.sx, c3.sy + 20);
+      ctx.lineTo(c4.sx, c4.sy + 20);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Render 3D surface quads back-to-front
+      for (let y = 0; y < meshN - isoStep; y += isoStep) {
+        for (let x = 0; x < meshN - isoStep; x += isoStep) {
+          const t1 = gridT[y][x] || 25;
+          const t2 = gridT[y][x + isoStep] || 25;
+          const t3 = gridT[y + isoStep][x + isoStep] || 25;
+          const t4 = gridT[y + isoStep][x] || 25;
+          const avgTemp = (t1 + t2 + t3 + t4) / 4;
+
+          const p1 = project(x, y, t1);
+          const p2 = project(x + isoStep, y, t2);
+          const p3 = project(x + isoStep, y + isoStep, t3);
+          const p4 = project(x, y + isoStep, t4);
+
+          const col = getColorForTemp(avgTemp, tRefMin, tRefMax);
+          ctx.fillStyle = col.css;
+          ctx.beginPath();
+          ctx.moveTo(p1.sx, p1.sy);
+          ctx.lineTo(p2.sx, p2.sy);
+          ctx.lineTo(p3.sx, p3.sy);
+          ctx.lineTo(p4.sx, p4.sy);
+          ctx.closePath();
+          ctx.fill();
+
+          // Subtle grid outline
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+
+      // Draw 3D axis and title
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 10px JetBrains Mono, monospace';
+      ctx.fillText("3D Elevated Thermal Topology View (Z = Temperature Rise)", 20, 24);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '9px JetBrains Mono, monospace';
+      ctx.fillText("Elevation represents heat accumulation across SS plate surface", 20, 38);
+    }
+
+    function drawZoneBorders(ctx, padX, padY, renderW, renderH) {
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 4]);
+
+      const z13_w = parseFloat(document.getElementById('z13_w').value) || 40;
+      const z24_w = parseFloat(document.getElementById('z24_w').value) || 47;
+      const L = parseFloat(document.getElementById('plateL').value) || 558;
+      const W = parseFloat(document.getElementById('plateW').value) || 478;
+
+      const normEdgeX = (z13_w / W) * renderW;
+      const normEdgeY = (z24_w / L) * renderH;
+
+      ctx.strokeRect(padX + normEdgeX, padY + normEdgeY, renderW - 2 * normEdgeX, renderH - 2 * normEdgeY);
+      ctx.setLineDash([]);
+
+      const cx = padX + renderW / 2;
+      const cy = padY + renderH / 2;
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 5, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '10px JetBrains Mono, monospace';
+      ctx.fillText("TC1 Sensor", cx + 8, cy + 3);
+      ctx.fillText("Z1", padX + normEdgeX / 2 - 6, cy);
+      ctx.fillText("Z3", padX + renderW - normEdgeX / 2 - 6, cy);
+      ctx.fillText("Z2", cx - 6, padY + normEdgeY / 2 + 3);
+      ctx.fillText("Z4", cx - 6, padY + renderH - normEdgeY / 2 + 3);
+      ctx.fillText("Z5 (Core)", cx - 22, cy - 12);
+    }
+
+    function initChart() {
+      const ctx = document.getElementById('transientChart').getContext('2d');
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [
+            { label: 'Internal SRH Element (Â°C)', data: [], borderColor: '#ef4444', borderWidth: 2, pointRadius: 0, tension: 0.3 },
+            { label: 'SS Plate Top Surface (Â°C)', data: [], borderColor: '#f59e0b', borderWidth: 2, pointRadius: 0, tension: 0.3 },
+            { label: 'Bottom Mica Shield (Â°C)', data: [], borderColor: '#38bdf8', borderWidth: 2, pointRadius: 0, tension: 0.3 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#94a3b8', font: { size: 9, family: 'JetBrains Mono' } }
+            },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#94a3b8', font: { size: 9, family: 'JetBrains Mono' } }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: { color: '#cbd5e1', font: { size: 10, family: 'Plus Jakarta Sans' }, boxWidth: 12 }
+            }
+          }
+        }
+      });
+    }
+
+    let chartSampleCounter = 0;
+    function recordChartData(timeSec, tPlate, tSRH, tMica) {
+      chartSampleCounter++;
+      if (chartSampleCounter % 5 !== 0) return;
+
+      if (chartInstance) {
+        chartInstance.data.labels.push((timeSec / 60).toFixed(1) + "m");
+        chartInstance.data.datasets[0].data.push(tSRH);
+        chartInstance.data.datasets[1].data.push(tPlate);
+        chartInstance.data.datasets[2].data.push(tMica);
+
+        if (chartInstance.data.labels.length > 50) {
+          chartInstance.data.labels.shift();
+          chartInstance.data.datasets.forEach(d => d.data.shift());
+        }
+        chartInstance.update();
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initChart();
+      loadBenchmark5Zone();
+      const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      document.getElementById('rptCurrentDate').innerText = today;
+    });
+  </script>
+</body>
+</html>

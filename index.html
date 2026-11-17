@@ -1,0 +1,3287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Industrial Heater Engineering & Design Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-orange-500 selection:text-white">
+
+  <!-- TOP HEADER -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-lg shadow-orange-500/20 text-white font-bold text-xl">
+          ⚡
+        </div>
+        <div>
+          <h1 class="text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
+            Industrial Heater Engineering Suite
+            <span class="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/30 px-2 py-0.5 rounded-full font-mono font-semibold">v1.0 Pro</span>
+          </h1>
+          <p class="text-xs text-slate-400">Watt Density · Max Uncontrolled Temp · Uniformity Plate Design · Tank Immersion · Watlow® Engineering Standards</p>
+        </div>
+      </div>
+
+      <!-- Quick Navigation Tabs -->
+      <div class="flex items-center bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 text-xs font-semibold">
+        <button id="tabBtn-mode1" onclick="switchTab('mode1')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-orange-500 text-slate-950 font-bold shadow">
+          <span>🔍</span> Quick Check & Rating
+        </button>
+        <button id="tabBtn-mode2" onclick="switchTab('mode2')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 text-slate-300 hover:text-white">
+          <span>📐</span> Platen Uniformity (±3°C)
+        </button>
+        <button id="tabBtn-mode3" onclick="switchTab('mode3')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 text-slate-300 hover:text-white">
+          <span>💧</span> Tank / Water Immersion
+        </button>
+        <button id="tabBtn-mode4" onclick="switchTab('mode4')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 text-slate-300 hover:text-white">
+          <span>🟧</span> Silicone Mat on SS Plate
+        </button>
+        <a href="Hot_Plate_Thermal_Simulator.html" target="_blank" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 font-bold border border-amber-500/40 shadow-sm">
+          <span>♨</span> Hot Plate FEA Simulator (Report & Physics) ↗
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ========================================================================= -->
+    <!-- MODE 1: HEATER QUICK CHECK & QUOTE RATING                                -->
+    <!-- ========================================================================= -->
+    <section id="mode1" class="space-y-6">
+      <!-- Title banner -->
+      <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-orange-950/40 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 text-orange-400 text-xs font-bold uppercase tracking-wider mb-1">
+              <span>Heater Rating & Safety Calculator</span>
+              <span>•</span>
+              <span class="text-slate-400 font-normal">Customer provides Size & Power</span>
+            </div>
+            <h2 class="text-xl font-bold text-white">Surface Watt Density, Max Operating Temp & Max Safe Power</h2>
+            <p class="text-xs text-slate-400 mt-1 max-w-3xl">
+              Evaluate Cartridge, Immersion, Band, Ceramic Band, Cast Brass, and Silicone Rubber heaters. Computes exact heated surface area, watt density, runaway surface equilibrium temperature without control, and maximum allowable wattage.
+            </p>
+          </div>
+          <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl px-4 py-2 text-right shrink-0">
+            <div class="text-[11px] text-slate-400">Unit Standard</div>
+            <div class="text-xs font-mono font-bold text-orange-400">Metric (mm, W/cm²) + Imperial (in, W/in²)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Input Parameters Card -->
+        <div class="lg:col-span-7 bg-slate-900/90 border border-slate-800 rounded-2xl p-6 space-y-5 shadow-xl">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+              1. Heater Specifications & Operating Condition
+            </h3>
+            <span class="text-[11px] font-mono text-slate-400">Input Data</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Heater Type -->
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heater Construction Type</label>
+              <select id="m1_type" onchange="handleM1TypeChange(); calculateMode1();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-white focus:outline-none focus:border-orange-500 transition">
+                <option value="cartridge">🔥 Cartridge Heater (High / Medium Density)</option>
+                <option value="immersion_water">💧 Immersion Heater (Water / Aqueous Solution)</option>
+                <option value="immersion_oil">🛢️ Immersion Heater (Thermal Oil / Light Oil)</option>
+                <option value="band_mica">⭕ Mica Band Heater (Cylinder / Nozzle)</option>
+                <option value="band_ceramic">🧱 Ceramic Knuckle Band Heater (High Temp)</option>
+                <option value="cast_brass">🔶 Cast Brass / Bronze Heater (Extruder / Die)</option>
+                <option value="silicone_rubber">🟧 Silicone Rubber Flexible Heater (SRH Mat)</option>
+              </select>
+            </div>
+
+            <!-- Operating Environment / Fit Condition -->
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold text-slate-300 mb-1.5">Installation / Heat Transfer Condition</label>
+              <select id="m1_condition" onchange="calculateMode1();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 transition">
+                <!-- Dynamically populated based on heater type -->
+              </select>
+            </div>
+
+            <!-- Dimensions Dynamic Inputs -->
+            <div id="m1_dim_wrap_d" class="space-y-1.5">
+              <div class="flex justify-between items-center">
+                <label id="m1_label_d" class="text-xs font-semibold text-slate-300">Outer Diameter (OD):</label>
+                <span id="m1_sub_d" class="text-[11px] font-mono text-orange-400">12.7 mm (1/2")</span>
+              </div>
+              <div class="relative">
+                <input type="number" id="m1_diam" step="0.1" value="12.7" oninput="calculateMode1();" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-orange-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">mm</span>
+              </div>
+            </div>
+
+            <div id="m1_dim_wrap_l" class="space-y-1.5">
+              <div class="flex justify-between items-center">
+                <label id="m1_label_l" class="text-xs font-semibold text-slate-300">Total Length (L):</label>
+                <span id="m1_sub_l" class="text-[11px] font-mono text-orange-400">200 mm</span>
+              </div>
+              <div class="relative">
+                <input type="number" id="m1_length" step="1" value="200" oninput="calculateMode1();" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-orange-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">mm</span>
+              </div>
+            </div>
+
+            <!-- Width (for flat heaters like Silicone, Flat Cast) -->
+            <div id="m1_dim_wrap_w" class="space-y-1.5 hidden">
+              <div class="flex justify-between items-center">
+                <label class="text-xs font-semibold text-slate-300">Width (W):</label>
+                <span id="m1_sub_w" class="text-[11px] font-mono text-orange-400">150 mm</span>
+              </div>
+              <div class="relative">
+                <input type="number" id="m1_width" step="1" value="150" oninput="calculateMode1();" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-orange-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">mm</span>
+              </div>
+            </div>
+
+            <!-- Inactive Cold Zone (for Cartridge / Immersion) -->
+            <div id="m1_dim_wrap_cold" class="space-y-1.5">
+              <div class="flex justify-between items-center">
+                <label class="text-xs font-semibold text-slate-300">Inactive Cold Ends Total:</label>
+                <span class="text-[11px] text-slate-400">Tip + Lead Cold</span>
+              </div>
+              <div class="relative">
+                <input type="number" id="m1_cold" step="1" value="15" oninput="calculateMode1();" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-orange-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">mm</span>
+              </div>
+            </div>
+
+            <!-- Power & Voltage -->
+            <div class="space-y-1.5">
+              <label class="text-xs font-semibold text-slate-300">Customer Rated Power:</label>
+              <div class="relative">
+                <input type="number" id="m1_watts" step="10" value="600" oninput="calculateMode1();" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono font-bold text-orange-400 focus:outline-none focus:border-orange-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">Watts</span>
+              </div>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="text-xs font-semibold text-slate-300">Operating Voltage:</label>
+              <div class="relative">
+                <input type="number" id="m1_volts" step="5" value="230" oninput="calculateMode1();" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-orange-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">Volts</span>
+              </div>
+            </div>
+
+            <!-- Ambient Temperature -->
+            <div class="space-y-1.5">
+              <label class="text-xs font-semibold text-slate-300">Ambient / Surrounding Temp:</label>
+              <div class="relative">
+                <input type="number" id="m1_amb" step="1" value="25" oninput="calculateMode1();" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-orange-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">°C</span>
+              </div>
+            </div>
+
+            <!-- Number of elements (for immersion assemblies) -->
+            <div id="m1_dim_wrap_elements" class="space-y-1.5 hidden">
+              <label class="text-xs font-semibold text-slate-300">Number of Hairpins / Loops:</label>
+              <select id="m1_elements" onchange="calculateMode1();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-orange-500">
+                <option value="1">1 Hairpin Element (2 passes)</option>
+                <option value="2">2 Hairpin Elements (4 passes)</option>
+                <option value="3" selected>3 Hairpins (Standard 6-pass Flange/Plug)</option>
+                <option value="6">6 Hairpins (Heavy Flange)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Quick presets buttons -->
+          <div class="pt-2 border-t border-slate-800/80">
+            <div class="text-[11px] font-semibold text-slate-400 mb-2">Quick Standard Presets:</div>
+            <div class="flex flex-wrap gap-2 text-xs">
+              <button type="button" onclick="setM1Preset('cart_std')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-[11px]">Cartridge Ø12.7 x 200mm (600W)</button>
+              <button type="button" onclick="setM1Preset('band_nozzle')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-[11px]">Mica Band Ø50 x 50mm (350W)</button>
+              <button type="button" onclick="setM1Preset('srh_mat')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-[11px]">Silicone 200x300mm (300W)</button>
+              <button type="button" onclick="setM1Preset('imm_water_3k')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-[11px]">Water Immersion 3kW 2" Plug</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculation Analysis & Engineering Output -->
+        <div class="lg:col-span-5 space-y-4">
+          <!-- Main Output Card -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                Engineering Verdict & Limits
+              </h3>
+              <span id="m1_status_badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                Safe Rating
+              </span>
+            </div>
+
+            <!-- Watt Density Gauge Indicator -->
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+              <div class="flex justify-between items-baseline">
+                <span class="text-xs text-slate-400 font-semibold">Surface Watt Density:</span>
+                <div class="text-right">
+                  <span id="m1_res_wd_cm" class="text-2xl font-black font-mono text-orange-400">8.1</span>
+                  <span class="text-xs text-slate-400 font-mono ml-1">W/cm²</span>
+                </div>
+              </div>
+              <div class="flex justify-between text-[11px] text-slate-500 font-mono">
+                <span>Imperial Equivalent:</span>
+                <span id="m1_res_wd_in" class="text-slate-300 font-bold">52.3 W/in²</span>
+              </div>
+              <!-- Progress bar -->
+              <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden mt-1 relative">
+                <div id="m1_bar_wd" class="h-full bg-emerald-500 transition-all duration-300" style="width: 45%;"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono pt-1">
+                <span>0 W/cm²</span>
+                <span id="m1_limit_rec">Recommended Max: 12 W/cm²</span>
+                <span id="m1_limit_abs">Hard Max: 25 W/cm²</span>
+              </div>
+            </div>
+
+            <!-- Max Power & Max Temperature Outputs -->
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-slate-950/80 border border-slate-800 p-3.5 rounded-xl space-y-1">
+                <div class="text-[11px] text-slate-400 font-medium">Max Recommended Power:</div>
+                <div class="flex items-baseline gap-1">
+                  <span id="m1_res_max_watts" class="text-lg font-black font-mono text-emerald-400">920</span>
+                  <span class="text-xs text-slate-400 font-mono">W</span>
+                </div>
+                <div class="text-[10px] text-slate-500">Based on standard safety limit for this size</div>
+              </div>
+
+              <div class="bg-slate-950/80 border border-slate-800 p-3.5 rounded-xl space-y-1">
+                <div class="text-[11px] text-slate-400 font-medium">Max Uncontrolled Temp:</div>
+                <div class="flex items-baseline gap-1">
+                  <span id="m1_res_runaway_temp" class="text-lg font-black font-mono text-amber-400">485</span>
+                  <span class="text-xs text-slate-400 font-mono">°C</span>
+                </div>
+                <div class="text-[10px] text-slate-500">Runaway equilibrium (without PID control)</div>
+              </div>
+            </div>
+
+            <!-- Detailed Breakdown Metrics -->
+            <div class="space-y-2 text-xs border-t border-slate-800/80 pt-3 font-mono">
+              <div class="flex justify-between text-slate-400">
+                <span>Effective Heated Area:</span>
+                <span id="m1_res_area" class="text-slate-200 font-bold">73.8 cm² (11.4 in²)</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Current Draw (@ <span id="m1_lbl_v">230V</span>):</span>
+                <span id="m1_res_amp" class="text-slate-200 font-bold">2.61 A</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Hot Resistance (R):</span>
+                <span id="m1_res_ohm" class="text-slate-200 font-bold">88.2 Ω</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Sheath Material Limit:</span>
+                <span id="m1_res_sheath_limit" class="text-orange-400 font-bold">SS304 / Incoloy: 750°C</span>
+              </div>
+            </div>
+
+            <!-- Engineering Advisory Notice -->
+            <div id="m1_advisory_box" class="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-xs space-y-1">
+              <div class="font-bold text-emerald-400 flex items-center gap-1.5">
+                <span>✓</span> <span id="m1_advisory_title">Watt Density is Within Safe Operating Parameters</span>
+              </div>
+              <p id="m1_advisory_text" class="text-slate-300 text-[11px] leading-relaxed">
+                Cartridge heater will achieve good operational life when inserted with recommended fit tolerance (hole diameter clearance &lt; 0.12mm).
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================================================= -->
+    <!-- MODE 2: METAL PLATEN / PLATE HEATING & UNIFORMITY (±3°C)                  -->
+    <!-- ========================================================================= -->
+    <section id="mode2" class="space-y-6 hidden">
+      <!-- Title banner -->
+      <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-blue-950/40 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 text-blue-400 text-xs font-bold uppercase tracking-wider mb-1">
+              <span>Precision Platen Tooling Designer</span>
+              <span>•</span>
+              <span class="text-slate-400 font-normal">Customer gives Plate Size & requests Uniformity (±3°C)</span>
+            </div>
+            <h2 class="text-xl font-bold text-white">Metal Plate Heating: Power, Cartridge Count & Pitch Spacing</h2>
+            <p class="text-xs text-slate-400 mt-1 max-w-3xl">
+              Calculates mass, sensible heat-up energy, surface radiation & convection losses, required kW, optimal cartridge heater quantity, diameter, and critical hole spacing pitch ($S \le 2.5 \times H$) to guarantee ±3°C surface temperature uniformity.
+            </p>
+          </div>
+          <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl px-4 py-2 text-right shrink-0">
+            <div class="text-[11px] text-slate-400">Target Uniformity</div>
+            <div class="text-xs font-mono font-bold text-blue-400">±3°C Strict Tolerance</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Input Parameters -->
+        <div class="lg:col-span-6 bg-slate-900/90 border border-slate-800 rounded-2xl p-6 space-y-5 shadow-xl">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+              1. Metal Plate Dimensions & Material
+            </h3>
+            <span class="text-[11px] font-mono text-slate-400">Platen Inputs</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Length (mm):</label>
+              <input type="number" id="m2_length" value="400" step="10" oninput="calculateMode2();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Width (mm):</label>
+              <input type="number" id="m2_width" value="400" step="10" oninput="calculateMode2();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Thickness (mm):</label>
+              <input type="number" id="m2_thick" value="35" step="5" oninput="calculateMode2();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Plate Material -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Plate Material:</label>
+              <select id="m2_material" onchange="calculateMode2();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                <option value="aluminum">Aluminum 6061 (Best for Uniformity, k=167 W/mK)</option>
+                <option value="steel">Carbon / Tool Steel (k=45 W/mK)</option>
+                <option value="stainless">Stainless Steel 304/316 (Poor Conduction, k=16 W/mK)</option>
+                <option value="brass">Brass / Copper Alloy (k=115 W/mK)</option>
+              </select>
+            </div>
+
+            <!-- Target Temperature -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Operating Surface Temp:</label>
+              <div class="relative">
+                <input type="number" id="m2_target_temp" value="180" step="10" oninput="calculateMode2();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-blue-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">°C</span>
+              </div>
+            </div>
+
+            <!-- Heat-up time -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Desired Heat-up Time:</label>
+              <div class="relative">
+                <input type="number" id="m2_time_min" value="30" step="5" oninput="calculateMode2();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-blue-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">Minutes</span>
+              </div>
+            </div>
+
+            <!-- Ambient Temp -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Ambient Initial Temp:</label>
+              <div class="relative">
+                <input type="number" id="m2_amb_temp" value="25" step="1" oninput="calculateMode2();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-blue-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">°C</span>
+              </div>
+            </div>
+
+            <!-- Plate Insulation Condition -->
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Platen Insulation Setup:</label>
+              <select id="m2_insulation" onchange="calculateMode2();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                <option value="uninsulated">Uninsulated (All 6 faces exposed to room air)</option>
+                <option value="bottom_sides">Bottom & Sides Insulated (Top face active working surface)</option>
+                <option value="press_platen">Clamped in Hydraulic Press with Insulating Thermal Board</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Design Workflow Mode Toggle -->
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold text-slate-200">Design Calculation Mode:</label>
+              <span id="m2_workflow_badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">Auto Tooling Sizing</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" id="btn_workflow_auto" onclick="setM2Workflow('auto')" class="py-2 px-3 rounded-lg text-xs font-bold transition-all bg-blue-500 text-slate-950 shadow">
+                ⚡ Auto-Engineer (We Design)
+              </button>
+              <button type="button" id="btn_workflow_custom" onclick="setM2Workflow('custom')" class="py-2 px-3 rounded-lg text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:text-white border border-slate-700">
+                👤 Customer's Own Design (Verify)
+              </button>
+            </div>
+          </div>
+
+          <!-- Customer Specified Design Override Box (shown when Customer's Own Design is selected) -->
+          <div id="m2_customer_override_box" class="p-3.5 rounded-xl bg-purple-950/30 border border-purple-500/40 space-y-3 hidden">
+            <div class="flex items-center justify-between">
+              <div class="text-xs font-bold text-purple-300 flex items-center gap-1.5">
+                <span>🔧</span> Customer's Pre-Determined Heater Specs:
+              </div>
+              <span class="text-[10px] font-mono text-purple-400">User Override</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Customer Heater Qty (pcs):</label>
+                <div class="relative">
+                  <input type="number" id="m2_cust_qty" value="15" min="1" max="100" step="1" oninput="calculateMode2();" class="w-full bg-slate-900 border border-purple-500/60 rounded-xl px-3.5 py-2 text-xs font-mono font-bold text-purple-300 focus:outline-none focus:border-purple-400">
+                  <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">pcs</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Power per Heater (W):</label>
+                <div class="relative">
+                  <input type="number" id="m2_cust_watts" value="500" min="10" max="20000" step="10" oninput="calculateMode2();" class="w-full bg-slate-900 border border-purple-500/60 rounded-xl px-3.5 py-2 text-xs font-mono font-bold text-purple-300 focus:outline-none focus:border-purple-400">
+                  <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">Watts</span>
+                </div>
+              </div>
+            </div>
+            <div class="text-[11px] text-slate-400 leading-tight">
+              Customer specified total power: <span id="m2_lbl_cust_total" class="font-mono font-bold text-purple-400">7.5 kW (15 x 500W)</span>.
+              The tool will verify heat-up speed, watt density safety, and thermal uniformity!
+            </div>
+          </div>
+
+          <!-- Cartridge Diameter Selection for Platen -->
+          <div class="pt-3 border-t border-slate-800 space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Cartridge Heater Diameter (OD)</h4>
+              <span class="text-[11px] font-mono text-blue-400">Custom Any Size</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Enter Custom Diameter (mm):</label>
+                <div class="relative">
+                  <input type="number" id="m2_cart_diam_input" value="12.0" step="0.1" min="3" max="50" oninput="calculateMode2();" class="w-full bg-slate-800 border border-blue-500/80 rounded-xl px-3.5 py-2 text-xs font-mono font-bold text-blue-400 focus:outline-none focus:border-blue-400">
+                  <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">mm</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Quick Size Selectors:</label>
+                <div class="flex flex-wrap gap-1.5">
+                  <button type="button" onclick="setM2Diam(9.5)" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-[11px] font-mono">9.5mm (3/8")</button>
+                  <button type="button" onclick="setM2Diam(12.0)" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-[11px] font-mono">12.0mm</button>
+                  <button type="button" onclick="setM2Diam(12.7)" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-[11px] font-mono">12.7mm (1/2")</button>
+                  <button type="button" onclick="setM2Diam(15.9)" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-[11px] font-mono">15.9mm (5/8")</button>
+                  <button type="button" onclick="setM2Diam(20.0)" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-[11px] font-mono">20.0mm</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Platen Engineering Output & Uniformity Layout -->
+        <div class="lg:col-span-6 space-y-4">
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                2. Sizing, Spacing & ±3°C Uniformity Layout
+              </h3>
+              <span class="text-[11px] font-mono text-blue-400 font-bold">Heater BOM</span>
+            </div>
+
+            <!-- Key Power Metrics -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                <div class="text-[10px] text-slate-400">Total Platen Mass:</div>
+                <div class="text-base font-bold font-mono text-white mt-0.5"><span id="m2_res_mass">15.1</span> kg</div>
+              </div>
+              <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                <div class="text-[10px] text-slate-400">Heat-up Energy:</div>
+                <div class="text-base font-bold font-mono text-white mt-0.5"><span id="m2_res_kw_heatup">1.95</span> kW</div>
+              </div>
+              <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 col-span-2 sm:col-span-1">
+                <div class="text-[10px] text-slate-400">Surface Losses:</div>
+                <div class="text-base font-bold font-mono text-white mt-0.5"><span id="m2_res_kw_loss">0.42</span> kW</div>
+              </div>
+            </div>
+
+            <!-- Total Recommended Power -->
+            <div class="p-4 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-blue-300">Total Recommended Power (with 25% safety factor):</div>
+                <div class="text-[11px] text-slate-400">Guarantees heat-up time and temp stability</div>
+              </div>
+              <div class="text-right">
+                <span id="m2_res_kw_total" class="text-2xl font-black font-mono text-blue-400">3.0</span>
+                <span class="text-xs font-mono text-blue-300">kW</span>
+              </div>
+            </div>
+
+            <!-- Cartridge Heater Quantity & Sizing Calculation -->
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+              <div class="text-xs font-bold text-white flex items-center justify-between">
+                <span>Recommended Heater Configuration:</span>
+                <span id="m2_res_config_badge" class="text-[11px] text-emerald-400 font-mono font-bold">Optimal Spacing</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 text-xs font-mono">
+                <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
+                  <div class="text-[10px] text-slate-500 uppercase">Cartridge Quantity:</div>
+                  <div class="text-lg font-black text-orange-400 mt-1"><span id="m2_res_qty">6</span> Pcs</div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">Ø<span id="m2_res_diam_used">12.0</span> x L=<span id="m2_res_hlen">380</span> mm</div>
+                </div>
+                <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
+                  <div class="text-[10px] text-slate-500 uppercase">Power per Heater:</div>
+                  <div class="text-lg font-black text-orange-400 mt-1"><span id="m2_res_watts_each">500</span> Watts</div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">Watt Density: <span id="m2_res_wd_each">3.4</span> W/cm²</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ±3°C Uniformity Thermal Layout Rules -->
+            <div class="space-y-3">
+              <div class="text-xs font-bold text-white flex items-center gap-2">
+                <span>🎯 Rules of Thumb for ±3°C Uniformity:</span>
+              </div>
+              <div class="space-y-2 text-xs">
+                <!-- Spacing vs Depth rule -->
+                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                  <div class="flex justify-between items-center font-mono">
+                    <span class="text-slate-400">Drill Hole Pitch Spacing (<span class="text-blue-400 font-bold">S</span>):</span>
+                    <span id="m2_res_pitch" class="text-white font-bold">66.7 mm</span>
+                  </div>
+                  <div class="flex justify-between items-center font-mono text-[11px]">
+                    <span class="text-slate-500">Center Depth from Surface (<span class="text-blue-400">H</span>):</span>
+                    <span id="m2_res_depth" class="text-slate-300">17.5 mm</span>
+                  </div>
+                  <div class="flex justify-between items-center font-mono text-[11px] pt-1 border-t border-slate-900">
+                    <span class="text-slate-500">Ratio Pitch / Depth (S/H):</span>
+                    <span id="m2_res_ratio" class="text-emerald-400 font-bold">3.8 (Target: ≤ 2.5 - 3.5)</span>
+                  </div>
+                  <div class="flex justify-between items-center font-mono text-[11px]">
+                    <span class="text-slate-500">Recommended Edge Distance:</span>
+                    <span id="m2_res_edge_dist" class="text-blue-400 font-bold">29 mm</span>
+                  </div>
+                </div>
+
+                <!-- Edge loss compensation -->
+                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1 text-[11px] leading-relaxed text-slate-300">
+                  <div class="font-bold text-amber-400 flex items-center gap-1.5">
+                    <span>⚠️</span> Edge Heat Loss Compensation Strategy
+                  </div>
+                  <p id="m2_edge_note">
+                    Plate edges dissipate up to 25% more heat into ambient air. Calculating custom compensation for your platen...
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2D THERMAL UNIFORMITY SIMULATION SECTION -->
+            <div class="pt-4 border-t border-slate-800 space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>🔬 2D Surface Thermal Simulation</span>
+                  </span>
+                  <button id="btn_run_simulation" onclick="triggerSimulationAnimation()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-md hover:shadow-blue-500/25 transition-all flex items-center gap-1.5 cursor-pointer border border-blue-400/30 active:scale-95">
+                    <span id="sim_btn_icon">▶</span>
+                    <span id="sim_btn_text">Start Simulation</span>
+                  </button>
+                </div>
+                <div class="flex items-center gap-3 text-[11px] font-mono">
+                  <span class="text-slate-400">Simulated Delta:</span>
+                  <span id="sim_temp_delta" class="text-emerald-400 font-bold">± 2.4°C (PASS)</span>
+                </div>
+              </div>
+
+              <!-- Canvas Container -->
+              <div class="relative bg-slate-950 rounded-xl border border-slate-800 p-3 overflow-hidden">
+                <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-2">
+                  <span>Platen Surface Temperature Profile</span>
+                  <div class="flex items-center gap-2">
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-blue-600 inline-block"></span> Cooler Edge</span>
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-orange-500 inline-block"></span> Target Nominal</span>
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-red-500 inline-block"></span> Core Peak</span>
+                  </div>
+                </div>
+
+                <div class="flex justify-center">
+                  <canvas id="thermalCanvas" width="560" height="220" class="w-full max-w-[560px] h-[220px] rounded-lg border border-slate-800/80 bg-slate-900 shadow-inner"></canvas>
+                </div>
+
+                <!-- Simulation Stats Bar -->
+                <div class="grid grid-cols-3 gap-2 mt-3 text-center text-xs font-mono">
+                  <div class="p-2 bg-slate-900 rounded-lg border border-slate-800/80">
+                    <div class="text-[10px] text-slate-500">Min Edge Temp</div>
+                    <div id="sim_min_temp" class="text-sm font-bold text-blue-400 mt-0.5">177.6°C</div>
+                  </div>
+                  <div class="p-2 bg-slate-900 rounded-lg border border-slate-800/80">
+                    <div class="text-[10px] text-slate-500">Target Nominal</div>
+                    <div id="sim_target_temp" class="text-sm font-bold text-white mt-0.5">180.0°C</div>
+                  </div>
+                  <div class="p-2 bg-slate-900 rounded-lg border border-slate-800/80">
+                    <div class="text-[10px] text-slate-500">Max Center Peak</div>
+                    <div id="sim_max_temp" class="text-sm font-bold text-red-400 mt-0.5">182.4°C</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================================================= -->
+    <!-- MODE 3: TANK / WATER IMMERSION HEATING SIZING                             -->
+    <!-- ========================================================================= -->
+    <section id="mode3" class="space-y-6 hidden">
+      <!-- Title banner -->
+      <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-teal-950/40 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 text-teal-400 text-xs font-bold uppercase tracking-wider mb-1">
+              <span>Liquid & Immersion Engineering Sizing</span>
+              <span>•</span>
+              <span class="text-slate-400 font-normal">Customer gives Tank Size & Target Temp</span>
+            </div>
+            <h2 class="text-xl font-bold text-white">Water / Tank Immersion Heating: kW Power & Delta T Calculator</h2>
+            <p class="text-xs text-slate-400 mt-1 max-w-3xl">
+              Calculates liquid volume, mass, temperature delta (ΔT), heat-up kW, tank surface convection & top evaporation losses, and recommends immersion screw plug / flange sizing with safe watt density verification.
+            </p>
+          </div>
+          <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl px-4 py-2 text-right shrink-0">
+            <div class="text-[11px] text-slate-400">Heating Medium</div>
+            <div id="m3_hdr_medium" class="text-xs font-mono font-bold text-teal-400">Direct Water Immersion</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Input parameters -->
+        <div class="lg:col-span-6 bg-slate-900/90 border border-slate-800 rounded-2xl p-6 space-y-5 shadow-xl">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-teal-500"></span>
+              1. Heating Architecture & Tank Sizing
+            </h3>
+            <span class="text-[11px] font-mono text-slate-400">System Design</span>
+          </div>
+
+          <!-- Heating System Architecture Selection -->
+          <div class="space-y-1.5 p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+            <label class="block text-xs font-semibold text-teal-300">Heating System Architecture:</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-teal-500 bg-teal-500/10 cursor-pointer transition-all" id="lbl_arch_direct">
+                <input type="radio" name="m3_arch" value="direct" checked onchange="toggleM3Arch(); calculateMode3();" class="mt-0.5">
+                <div>
+                  <div class="text-xs font-bold text-white">Direct Immersion Heating</div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">Heater directly inserted into the water tank.</div>
+                </div>
+              </label>
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-700 bg-slate-800/60 cursor-pointer hover:border-amber-500 transition-all" id="lbl_arch_jacket">
+                <input type="radio" name="m3_arch" value="jacket" onchange="toggleM3Arch(); calculateMode3();" class="mt-0.5">
+                <div>
+                  <div class="text-xs font-bold text-amber-300 flex items-center gap-1">
+                    <span>Double-Layer Oil Jacket</span>
+                    <span class="px-1.5 py-0.2 bg-amber-500/20 text-[9px] rounded border border-amber-500/40 font-mono">Indirect</span>
+                  </div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">Outer jacket oil heated by immersion, heating inner water softly.</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Tank shape selection -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold text-slate-300">Inner Water Tank Shape / Input Mode:</label>
+            <div class="grid grid-cols-3 gap-2">
+              <label class="flex items-center gap-2 p-2.5 rounded-xl border border-teal-500 bg-teal-500/10 cursor-pointer">
+                <input type="radio" name="m3_shape" value="rect" checked onchange="toggleM3Shape(); calculateMode3();">
+                <span class="text-xs font-semibold text-teal-300">Rectangular Tank</span>
+              </label>
+              <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-700 bg-slate-800/60 cursor-pointer hover:border-teal-500">
+                <input type="radio" name="m3_shape" value="cyl" onchange="toggleM3Shape(); calculateMode3();">
+                <span class="text-xs font-semibold text-slate-300">Cylindrical Tank</span>
+              </label>
+              <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-700 bg-slate-800/60 cursor-pointer hover:border-teal-500">
+                <input type="radio" name="m3_shape" value="direct" onchange="toggleM3Shape(); calculateMode3();">
+                <span class="text-xs font-semibold text-slate-300">Direct Liters</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Rectangular Inputs -->
+          <div id="m3_wrap_rect" class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Length (mm):</label>
+              <input type="number" id="m3_rect_l" value="800" step="50" oninput="calculateMode3();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-teal-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Width (mm):</label>
+              <input type="number" id="m3_rect_w" value="500" step="50" oninput="calculateMode3();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-teal-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Liquid Height (mm):</label>
+              <input type="number" id="m3_rect_h" value="500" step="50" oninput="calculateMode3();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-teal-500">
+            </div>
+          </div>
+
+          <!-- Cylindrical Inputs -->
+          <div id="m3_wrap_cyl" class="grid grid-cols-2 gap-3 hidden">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Diameter (mm):</label>
+              <input type="number" id="m3_cyl_d" value="600" step="50" oninput="calculateMode3();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-teal-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Liquid Height (mm):</label>
+              <input type="number" id="m3_cyl_h" value="800" step="50" oninput="calculateMode3();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-teal-500">
+            </div>
+          </div>
+
+          <!-- Direct Liters Input -->
+          <div id="m3_wrap_direct" class="hidden">
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Direct Water Volume (Liters / kg):</label>
+            <input type="number" id="m3_liters_direct" value="200" step="10" oninput="calculateMode3();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-teal-500">
+          </div>
+
+          <!-- DOUBLE-LAYER JACKET PARAMETERS (Shown only when Jacket mode is active) -->
+          <div id="m3_wrap_jacket_params" class="hidden space-y-3 p-3.5 rounded-xl bg-amber-500/5 border border-amber-500/30">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                <span>⚗️</span> Outer Thermal Oil Jacket Parameters
+              </span>
+              <span class="text-[10px] font-mono text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30">Indirect Sizing</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Jacket Gap / Annulus (mm):</label>
+                <div class="relative">
+                  <input type="number" id="m3_jacket_gap" value="40" min="20" max="150" step="5" oninput="calculateMode3();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-amber-500">
+                  <span class="absolute right-3 top-1.5 text-[11px] text-slate-500 font-mono">mm</span>
+                </div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Typical: 30–50 mm</div>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Tank Wall Material & Thickness:</label>
+                <select id="m3_wall_thick" onchange="calculateMode3();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                  <option value="ss304_3" selected>SS304 (3.0 mm plate)</option>
+                  <option value="ss304_4">SS304 (4.0 mm plate)</option>
+                  <option value="ss304_5">SS304 (5.0 mm plate)</option>
+                  <option value="carbon_4">Carbon Steel (4.0 mm)</option>
+                </select>
+                <div class="text-[10px] text-slate-500 mt-0.5">Heat transfer barrier</div>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Target Oil Temp Margin:</label>
+                <div class="relative">
+                  <input type="number" id="m3_oil_delta" value="30" min="15" max="80" step="5" oninput="calculateMode3();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-amber-500">
+                  <span class="absolute right-3 top-1.5 text-[11px] text-slate-500 font-mono">+°C</span>
+                </div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Oil runs above target water</div>
+              </div>
+            </div>
+
+            <!-- Jacket Oil Type and circulation mode -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-amber-500/20 text-xs">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Thermal Oil Grade:</label>
+                <select id="m3_oil_grade" onchange="calculateMode3();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                  <option value="std" selected>Standard Heat Transfer Oil 32 (Cp=2.1 kJ/kg·°C, ρ=0.88)</option>
+                  <option value="synth">Synthetic High-Temp Fluid (Cp=2.3 kJ/kg·°C, ρ=0.92)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Jacket Agitation / Flow:</label>
+                <select id="m3_agitation" onchange="calculateMode3();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                  <option value="natural" selected>Natural Convection (Static Oil Jacket)</option>
+                  <option value="circ">Pumped Recirculation (Higher U-value)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-800">
+            <!-- Liquid Type -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Liquid Type:</label>
+              <select id="m3_liquid" onchange="calculateMode3();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-500">
+                <option value="water">Clean Water (Cp = 4.186 kJ/kg·°C)</option>
+                <option value="oil">Thermal Oil (Cp = 2.1 kJ/kg·°C, ρ = 0.88)</option>
+                <option value="glycol">50% Water / Glycol (Cp = 3.5 kJ/kg·°C)</option>
+              </select>
+            </div>
+
+            <!-- Heat-up time -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Desired Heat-up Time:</label>
+              <div class="relative">
+                <input type="number" id="m3_time_hours" value="1.5" step="0.25" oninput="calculateMode3();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-teal-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">Hours</span>
+              </div>
+            </div>
+
+            <!-- Initial / Ambient Temp -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Initial Starting Temp (T₁):</label>
+              <div class="relative">
+                <input type="number" id="m3_temp_init" value="25" step="1" oninput="calculateMode3();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-teal-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">°C</span>
+              </div>
+            </div>
+
+            <!-- Target Temp -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Target Working Temp (T₂):</label>
+              <div class="relative">
+                <input type="number" id="m3_temp_target" value="75" step="1" oninput="calculateMode3();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-teal-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">°C</span>
+              </div>
+            </div>
+
+            <!-- Tank Insulation & Cover -->
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Tank Insulation & Top Cover Condition:</label>
+              <select id="m3_cover" onchange="calculateMode3();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-500">
+                <option value="open_unins">Open Top (Uninsulated tank walls - high evaporation loss)</option>
+                <option value="closed_unins">Closed Lid Cover (Uninsulated metal tank walls)</option>
+                <option value="closed_ins" selected>Closed Lid + 50mm Insulated Tank Walls (Industrial Best Practice)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Output Immersion Sizing -->
+        <div class="lg:col-span-6 space-y-4">
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-teal-500"></span>
+                2. Power Requirement & Delta T Analysis
+              </h3>
+              <span class="text-[11px] font-mono text-teal-400 font-bold">Heater Selection</span>
+            </div>
+
+            <!-- Delta T Highlight Card -->
+            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+              <div>
+                <div class="text-[11px] text-slate-400">Temperature Rise Required (Delta T):</div>
+                <div class="text-xs text-slate-500 mt-0.5">From <span id="m3_lbl_t1">25°C</span> to <span id="m3_lbl_t2">75°C</span></div>
+              </div>
+              <div class="text-right">
+                <span id="m3_res_delta" class="text-2xl font-black font-mono text-teal-400">Δ 50</span>
+                <span class="text-xs font-mono text-teal-300">°C</span>
+              </div>
+            </div>
+
+            <!-- Volume & Energy breakdown -->
+            <div class="grid grid-cols-3 gap-3">
+              <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                <div class="text-[10px] text-slate-400">Water Volume:</div>
+                <div class="text-base font-bold font-mono text-white mt-0.5"><span id="m3_res_liters">200</span> L</div>
+                <div class="text-[10px] text-slate-500"><span id="m3_res_mass">200</span> kg</div>
+              </div>
+              <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                <div class="text-[10px] text-slate-400">Water Heat-up:</div>
+                <div class="text-base font-bold font-mono text-white mt-0.5"><span id="m3_res_kw_heatup">7.75</span> kW</div>
+                <div class="text-[10px] text-slate-500">Pure Sensible</div>
+              </div>
+              <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                <div class="text-[10px] text-slate-400">Losses kW:</div>
+                <div class="text-base font-bold font-mono text-white mt-0.5"><span id="m3_res_kw_loss">0.95</span> kW</div>
+                <div class="text-[10px] text-slate-500">Tank + Evap</div>
+              </div>
+            </div>
+
+            <!-- Double-Layer Jacket Specific Energy Card (Shown when jacket mode is on) -->
+            <div id="m3_wrap_jacket_metrics" class="hidden p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-2.5">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-amber-300 flex items-center gap-1.5">
+                  <span>⚗️</span> Outer Jacket Oil Inventory & Heat Flux
+                </span>
+                <span class="font-mono text-[10px] text-amber-400 font-semibold" id="m3_res_oil_flux_pass">Heat Flux: PASS</span>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono">
+                <div class="p-2 bg-slate-900/90 rounded-lg border border-slate-800">
+                  <div class="text-[9px] text-slate-400">Jacket Oil Vol</div>
+                  <div id="m3_res_oil_vol" class="text-xs font-bold text-amber-400 mt-0.5">38 L</div>
+                  <div id="m3_res_oil_mass" class="text-[9px] text-slate-500">33.4 kg</div>
+                </div>
+                <div class="p-2 bg-slate-900/90 rounded-lg border border-slate-800">
+                  <div class="text-[9px] text-slate-400">Oil Heat-up kW</div>
+                  <div id="m3_res_oil_kw" class="text-xs font-bold text-amber-300 mt-0.5">1.8 kW</div>
+                  <div class="text-[9px] text-slate-500">Sensible Oil</div>
+                </div>
+                <div class="p-2 bg-slate-900/90 rounded-lg border border-slate-800">
+                  <div class="text-[9px] text-slate-400">Target Oil Temp</div>
+                  <div id="m3_res_oil_target" class="text-xs font-bold text-white mt-0.5">105°C</div>
+                  <div id="m3_res_oil_dt" class="text-[9px] text-amber-500">Δ 80°C</div>
+                </div>
+                <div class="p-2 bg-slate-900/90 rounded-lg border border-slate-800">
+                  <div class="text-[9px] text-slate-400">Transfer Area</div>
+                  <div id="m3_res_jacket_area" class="text-xs font-bold text-teal-400 mt-0.5">1.3 m²</div>
+                  <div id="m3_res_u_val" class="text-[9px] text-slate-500">U=180 W/m²K</div>
+                </div>
+              </div>
+              <div class="text-[10px] text-slate-300 leading-tight pt-1 border-t border-amber-500/20">
+                <span class="text-amber-400 font-semibold">• Heat Transfer Check:</span> 
+                At <span id="m3_lbl_oil_temp">105°C</span> jacket oil vs <span id="m3_lbl_water_temp">75°C</span> inner water (LMTD driving force ≈ <span id="m3_lbl_lmtd">30°C</span>), the jacket wall can transmit up to <span id="m3_res_q_max" class="font-bold text-emerald-400">7.0 kW</span> into the water.
+              </div>
+            </div>
+
+            <!-- Total Immersion Power -->
+            <div class="p-4 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-between" id="m3_card_total_kw">
+              <div>
+                <div class="text-xs font-bold text-teal-300" id="m3_lbl_kw_title">Total Recommended Heater Rating (with 20% safety margin):</div>
+                <div class="text-[11px] text-slate-400" id="m3_lbl_kw_subtitle">Guarantees warm-up within <span id="m3_lbl_time">1.5</span> hours</div>
+              </div>
+              <div class="text-right">
+                <span id="m3_res_kw_total" class="text-2xl font-black font-mono text-teal-400">10.5</span>
+                <span class="text-xs font-mono text-teal-300">kW</span>
+              </div>
+            </div>
+
+            <!-- Recommended Standard Immersion Heater Hardware -->
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+              <div class="text-xs font-bold text-white flex items-center justify-between">
+                <span id="m3_lbl_hardware_title">Recommended Immersion Heater Assembly:</span>
+                <span id="m3_lbl_hardware_badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-500/20 text-teal-400 border border-teal-500/30">Direct Water Immersion</span>
+              </div>
+
+              <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-2 text-xs">
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-400">Fitting / Connection:</span>
+                  <span id="m3_res_fitting" class="text-teal-400 font-bold font-mono">2.0" BSP / NPT Screw Plug (Brass or SS304)</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-400">Number of Elements:</span>
+                  <span id="m3_res_elements" class="text-white font-mono font-semibold">3 x U-Hairpins (6 heating legs)</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-400">Recommended Immersion Length:</span>
+                  <span id="m3_res_length" class="text-white font-mono font-semibold">L = 450 mm</span>
+                </div>
+                <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+                  <span class="text-slate-400">Immersion Watt Density:</span>
+                  <span id="m3_res_wd" class="text-emerald-400 font-bold font-mono">7.8 W/cm² (Safe for clean water)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Engineering / Safety Advisory Card -->
+            <div id="m3_card_advisory" class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] text-slate-300 leading-relaxed space-y-1.5">
+              <div class="font-bold text-amber-400 flex items-center gap-1.5" id="m3_lbl_advisory_head">
+                <span>💡</span> Engineering Sizing Note for Customers:
+              </div>
+              <div id="m3_lbl_advisory_body">
+                • For clean tap water, max allowable watt density is <strong>8–10 W/cm²</strong> (50–65 W/in²).<br>
+                • If hard water or mineral scaling is expected, reduce watt density to <strong>5–6 W/cm²</strong> to prevent scale crust bake-on and tube burnout.<br>
+                • For thermal oil heating, keep watt density <strong>≤ 2.5–3.0 W/cm²</strong> to avoid oil cracking and carbon deposits.
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================================================= -->
+    <!-- MODE 4: SILICONE RUBBER HEATER ON STAINLESS STEEL PLATE UNIFORMITY        -->
+    <!-- ========================================================================= -->
+    <section id="mode4" class="space-y-6 hidden">
+      <!-- Title banner -->
+      <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/40 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider mb-1">
+              <span>Surface Contact & Thin Plate Thermodynamics</span>
+              <span>•</span>
+              <span class="text-slate-400 font-normal">Silicone Mat Vulcanized/Bonded to Stainless Steel</span>
+            </div>
+            <h2 class="text-xl font-bold text-white">Silicone Rubber Heater on SS Plate: Power & Uniformity Sizing</h2>
+            <p class="text-xs text-slate-400 mt-1 max-w-3xl">
+              Calculates surface heat-up kW, convection/radiation losses from stainless steel (low conductivity k ≈ 16.3 W/m·K), edge temperature drop, element pitch spacing, and required edge-compensation profiling to achieve strict plate uniformity.
+            </p>
+          </div>
+          <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl px-4 py-2 text-right shrink-0">
+            <div class="text-[11px] text-slate-400">Heater Technology</div>
+            <div class="text-xs font-mono font-bold text-amber-400">Etched Foil / Wire Wound SRH</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Design Presets Bar -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-lg flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span>⚡</span> Quick Job Presets:
+          </span>
+          <span class="text-xs text-slate-400">Load verified industrial setups with 1 click:</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="loadM4Preset5ZoneColleague();" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-md transition-all">
+            <span>⭐</span> 5-Zone Colleague Design (558×478 mm | 2030W | 5 W/in²)
+          </button>
+          <button type="button" onclick="loadM4PresetStandardLab();" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-all">
+            Standard Lab Plate (300×200 mm)
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Input parameters -->
+        <div class="lg:col-span-6 bg-slate-900/90 border border-slate-800 rounded-2xl p-6 space-y-5 shadow-xl">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              1. Stainless Steel Plate & Silicone Mat Dimensions
+            </h3>
+            <span class="text-[11px] font-mono text-slate-400">Plate Geometry</span>
+          </div>
+
+          <!-- SS Plate Geometry Inputs -->
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Plate Length (L):</label>
+              <div class="relative">
+                <input type="number" id="m4_plate_l" value="300" min="20" step="10" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-amber-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">mm</span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Plate Width (W):</label>
+              <div class="relative">
+                <input type="number" id="m4_plate_w" value="200" min="20" step="10" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-amber-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">mm</span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Thickness (t):</label>
+              <div class="relative">
+                <input type="number" id="m4_plate_t" value="3.0" min="0.5" max="30" step="0.5" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-amber-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">mm</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Material & Thermal Target -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-800">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Stainless Steel Grade:</label>
+              <select id="m4_ss_grade" onchange="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                <option value="304" selected>SS304 (k = 16.2 W/m·K, ρ = 8.0 g/cm³)</option>
+                <option value="316">SS316 (k = 15.9 W/m·K, ρ = 8.0 g/cm³)</option>
+                <option value="430">SS430 Ferritic (k = 26.0 W/m·K, ρ = 7.7 g/cm³)</option>
+                <option value="alu_comp">Comparison: Aluminum 6061 (k = 167 W/m·K)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Desired Heat-up Time:</label>
+              <div class="relative">
+                <input type="number" id="m4_time_min" value="15" min="1" step="1" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-amber-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">Minutes</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Ambient Temperature (T₁):</label>
+              <div class="relative">
+                <input type="number" id="m4_temp_amb" value="25" step="1" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-amber-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">°C</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Target Surface Temp (T₂):</label>
+              <div class="relative">
+                <input type="number" id="m4_temp_target" value="120" min="30" max="220" step="5" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-amber-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-mono">°C (Max 200°C safe)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mounting, Insulation & Silicone Foil Technology -->
+          <div class="space-y-3 pt-2 border-t border-slate-800">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Silicone Mat Mounting / Attachment Method:</label>
+              <select id="m4_mount" onchange="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                <option value="psa" selected>Factory Vulcanized Pressure-Sensitive Adhesive (PSA - Rated to 150°C continuous)</option>
+                <option value="rtv">Field-Applied High-Temp RTV Silicone Paste (Rated to 200°C continuous)</option>
+                <option value="clamped">Mechanically Clamped backing plate (Best heat transfer, up to 200°C)</option>
+              </select>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Plate Insulation Condition:</label>
+                <select id="m4_insulation" onchange="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                  <option value="none">Bare Plate (Both sides exposed to ambient room air)</option>
+                  <option value="back_sponge" selected>Backside 10mm Silicone Sponge Foam Insulated (Recommended)</option>
+                  <option value="fully_insulated">Enclosed Chamber / Fully Insulated Backside</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Heating Element Technology:</label>
+                <select id="m4_tech" onchange="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                  <option value="etched_foil" selected>Etched Foil Element (Superior ±2–3°C Uniformity)</option>
+                  <option value="wire_wound">Wire Wound Element (Standard ±5–8°C Uniformity)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Multi-Zone Modular Heating Architecture (Maintenance Cost Saving Strategy) -->
+            <div class="p-3.5 bg-slate-950/80 rounded-xl border border-slate-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                  <span>🧩</span> Modular Zone Architecture (Maintenance Cost Saver)
+                </span>
+                <span id="m4_badge_zone_arch" class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">Single Monolithic Mat</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-tight">
+                Instead of 1 large costly custom mat, divide the plate into <strong>5 to 6 modular independent zones</strong>. If one element fails, only 1 cheap zone pad is replaced without tearing off the whole assembly!
+              </p>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Zone Configuration Mode:</label>
+                <select id="m4_zone_mode" onchange="toggleM4Zones(); calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                  <option value="1">1 Single Large Mat (100% monolithic coverage)</option>
+                  <option value="3">3-Zone Linear (2 Edges + 1 Center)</option>
+                  <option value="5" selected>5-Zone Modular Layout (4 Perimeter Edge Pads + 1 Center Core Pad)</option>
+                  <option value="5_custom">5-Zone Custom Specific Pad Sizes (Zone 1-5 Custom L×W & Watts)</option>
+                  <option value="6">6-Zone Modular Matrix (2×3 Grid: 4 Outer Corners + 2 Middle Zones)</option>
+                  <option value="custom">Custom Grid Divisions (Specify Rows × Columns)</option>
+                </select>
+              </div>
+
+              <!-- 5-Zone Custom Specific Pad Sizing Inputs (Editable for colleague design or any other job) -->
+              <div id="m4_wrap_5zone_custom" class="hidden space-y-3 pt-2 border-t border-slate-800">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold text-amber-300 uppercase tracking-wide">Custom 5-Zone Pad Dimensions & Power:</span>
+                  <span class="text-[10px] text-slate-400">Edit dimensions for any custom job</span>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                  <!-- Zone 1 & 3 -->
+                  <div class="p-2 bg-slate-900 border border-slate-800 rounded-lg space-y-1.5">
+                    <div class="font-bold text-amber-400 flex justify-between">
+                      <span>Zone 1 & 3 (Side Edges)</span>
+                      <span class="text-slate-400 text-[10px]">Qty: 2</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                      <div>
+                        <label class="text-[10px] text-slate-400">Length (mm):</label>
+                        <input type="number" id="m4_z13_l" value="384" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs font-mono text-white">
+                      </div>
+                      <div>
+                        <label class="text-[10px] text-slate-400">Width (mm):</label>
+                        <input type="number" id="m4_z13_w" value="40" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs font-mono text-white">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Zone 2 & 4 -->
+                  <div class="p-2 bg-slate-900 border border-slate-800 rounded-lg space-y-1.5">
+                    <div class="font-bold text-amber-400 flex justify-between">
+                      <span>Zone 2 & 4 (Top/Bottom)</span>
+                      <span class="text-slate-400 text-[10px]">Qty: 2</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                      <div>
+                        <label class="text-[10px] text-slate-400">Length (mm):</label>
+                        <input type="number" id="m4_z24_l" value="558" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs font-mono text-white">
+                      </div>
+                      <div>
+                        <label class="text-[10px] text-slate-400">Width (mm):</label>
+                        <input type="number" id="m4_z24_w" value="47" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs font-mono text-white">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Zone 5 (Center Core) -->
+                <div class="p-2 bg-slate-900 border border-slate-800 rounded-lg space-y-1.5">
+                  <div class="font-bold text-cyan-400 flex justify-between">
+                    <span>Zone 5 (Center Core Pad)</span>
+                    <span class="text-slate-400 text-[10px]">Qty: 1</span>
+                  </div>
+                  <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <div>
+                      <label class="text-[10px] text-slate-400">Length (mm):</label>
+                      <input type="number" id="m4_z5_l" value="478" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs font-mono text-white">
+                    </div>
+                    <div>
+                      <label class="text-[10px] text-slate-400">Width (mm):</label>
+                      <input type="number" id="m4_z5_w" value="384" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs font-mono text-white">
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
+                      <label class="text-[10px] text-slate-400">Total Power Target (W):</label>
+                      <input type="number" id="m4_custom_total_watts" value="2030" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs font-mono text-amber-300 font-bold">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Custom Grid Inputs (Shown when custom is selected) -->
+              <div id="m4_wrap_custom_grid" class="hidden grid grid-cols-2 gap-3 pt-2 border-t border-slate-800">
+                <div>
+                  <label class="block text-[11px] text-slate-400 mb-1">Zones Along Length (Rows):</label>
+                  <input type="number" id="m4_zones_x" value="3" min="1" max="10" step="1" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-slate-400 mb-1">Zones Along Width (Cols):</label>
+                  <input type="number" id="m4_zones_y" value="2" min="1" max="10" step="1" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white">
+                </div>
+              </div>
+
+              <!-- Inter-Zone Maintenance Gap -->
+              <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800 text-xs">
+                <div>
+                  <label class="block text-[11px] text-slate-400 mb-1">Inter-Zone Expansion Gap:</label>
+                  <div class="relative">
+                    <input type="number" id="m4_zone_gap" value="5" min="2" max="25" step="1" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white">
+                    <span class="absolute right-2 top-1.5 text-[10px] text-slate-500 font-mono">mm</span>
+                  </div>
+                  <div class="text-[10px] text-slate-500 mt-0.5">Wiring & thermal expansion relief</div>
+                </div>
+
+                <div>
+                  <label class="block text-[11px] text-slate-400 mb-1">Zone Control Strategy:</label>
+                  <select id="m4_zone_control" onchange="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                    <option value="dual" selected>Dual-Loop (Edge Zones + Center Zone separate TC)</option>
+                    <option value="multi">Individual Closed-Loop (Each zone has own TC sensor)</option>
+                    <option value="single">Single Controller (Pre-balanced resistances)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer Size / Custom Power verification toggle -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-300">Coverage & Sizing Baseline:</span>
+                <span id="m4_badge_cov" class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">Auto-Fit to Plate</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <label class="flex items-center gap-2 p-2 rounded-lg border border-amber-500 bg-amber-500/10 cursor-pointer text-xs" id="lbl_m4_cov_full">
+                  <input type="radio" name="m4_cov" value="full" checked onchange="toggleM4Coverage(); calculateMode4();">
+                  <span class="font-semibold text-white">Auto Full Surface Sizing</span>
+                </label>
+                <label class="flex items-center gap-2 p-2 rounded-lg border border-slate-700 bg-slate-800/60 cursor-pointer text-xs" id="lbl_m4_cov_custom">
+                  <input type="radio" name="m4_cov" value="custom" onchange="toggleM4Coverage(); calculateMode4();">
+                  <span class="font-semibold text-slate-300">Customer Custom Size Pad</span>
+                </label>
+              </div>
+
+              <div id="m4_wrap_custom_specs" class="hidden grid grid-cols-2 gap-3 pt-2 border-t border-slate-800">
+                <div>
+                  <label class="block text-[11px] text-slate-400 mb-1">Customer Mat Width (mm):</label>
+                  <input type="number" id="m4_cust_w" value="180" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-slate-400 mb-1">Customer Mat Length (mm):</label>
+                  <input type="number" id="m4_cust_l" value="280" oninput="calculateMode4();" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white">
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Output Calculations, Watt Density & Uniformity Engineering -->
+        <div class="lg:col-span-6 space-y-4">
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                2. Power & Surface Uniformity Analysis
+              </h3>
+              <span class="text-[11px] font-mono text-amber-400 font-bold">Watlow SRH Rules</span>
+            </div>
+
+            <!-- Temperature Delta Card -->
+            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+              <div>
+                <div class="text-[11px] text-slate-400">Plate Temperature Rise (Delta T):</div>
+                <div class="text-xs text-slate-500 mt-0.5">From <span id="m4_lbl_t1">25°C</span> to <span id="m4_lbl_t2">120°C</span> in <span id="m4_lbl_time">15</span> min</div>
+              </div>
+              <div class="text-right">
+                <span id="m4_res_delta" class="text-2xl font-black font-mono text-amber-400">Δ 95</span>
+                <span class="text-xs font-mono text-amber-300">°C</span>
+              </div>
+            </div>
+
+            <!-- Plate Mass & Power Breakdown -->
+            <div class="grid grid-cols-3 gap-3">
+              <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                <div class="text-[10px] text-slate-400">SS Plate Mass:</div>
+                <div class="text-base font-bold font-mono text-white mt-0.5"><span id="m4_res_mass">1.44</span> kg</div>
+                <div class="text-[10px] text-slate-500"><span id="m4_res_area">0.060</span> m² (One side)</div>
+              </div>
+              <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                <div class="text-[10px] text-slate-400">Heat-Up Power:</div>
+                <div class="text-base font-bold font-mono text-white mt-0.5"><span id="m4_res_kw_heatup">76</span> W</div>
+                <div class="text-[10px] text-slate-500">Pure Sensible</div>
+              </div>
+              <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                <div class="text-[10px] text-slate-400">Steady Losses:</div>
+                <div class="text-base font-bold font-mono text-white mt-0.5"><span id="m4_res_kw_loss">115</span> W</div>
+                <div class="text-[10px] text-slate-500">Convection + Rad</div>
+              </div>
+            </div>
+
+            <!-- Total Recommended Heater Power -->
+            <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-amber-300">Total Recommended Heater Rating (with 25% safety margin):</div>
+                <div class="text-[11px] text-slate-400">Guarantees warm-up within <span id="m4_lbl_time2">15</span> minutes</div>
+              </div>
+              <div class="text-right">
+                <span id="m4_res_watts_total" class="text-2xl font-black font-mono text-amber-400">240</span>
+                <span class="text-xs font-mono text-amber-300">Watts</span>
+              </div>
+            </div>
+
+            <!-- Watt Density Verification & Safe Operating Window -->
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+              <div class="text-xs font-bold text-white flex items-center justify-between">
+                <span>Silicone Rubber Watt Density Sizing:</span>
+                <span id="m4_badge_wd_status" class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">PASS: Safe Range</span>
+              </div>
+
+              <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-2 text-xs font-mono">
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-400 font-sans">Active Mat Heated Area:</span>
+                  <span id="m4_res_mat_area" class="text-white font-bold">560 cm² (86.8 in²)</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-400 font-sans">Calculated Average Watt Density:</span>
+                  <span id="m4_res_wd_val" class="text-amber-400 font-bold">0.43 W/cm² (2.76 W/in²)</span>
+                </div>
+                <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+                  <span class="text-slate-400 font-sans">Max Allowed Safe Density:</span>
+                  <span id="m4_res_wd_max" class="text-slate-300">0.80 W/cm² (5.16 W/in²) for PSA</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Multi-Zone Independent Power Breakdown & Maintenance Cost Saver Card -->
+            <div id="m4_wrap_zone_cards" class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                  <span>🧩</span> Multi-Zone Heater Specs & Maintenance Safety
+                </div>
+                <span id="m4_res_zone_count_badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">5 Independent Zones</span>
+              </div>
+
+              <!-- Zone Specs Grid -->
+              <div id="m4_zone_grid_container" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs font-mono">
+                <!-- Dynamically populated zone cards -->
+              </div>
+
+              <!-- Maintenance Cost Savings Callout -->
+              <div class="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-[11px] leading-relaxed text-slate-300 space-y-1">
+                <div class="font-bold text-emerald-400 flex items-center justify-between">
+                  <span class="flex items-center gap-1"><span>💰</span> Maintenance & Replacement Cost Advantage:</span>
+                  <span id="m4_res_savings_badge" class="font-mono text-[10px] text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded">Save ~70% to 80% Repair Cost</span>
+                </div>
+                <p id="m4_res_savings_desc">
+                  With 5 modular zones, if any heater element burns out during years of operation, you only replace <strong>1 small modular pad (approx. $35–$45)</strong> rather than tearing down and scraping a large custom 1-piece mat ($220+).
+                </p>
+              </div>
+            </div>
+
+            <!-- Uniformity Strategy on Stainless Steel (Watlow Etched Foil Profiling) -->
+            <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2 text-[11px] leading-relaxed text-slate-300">
+              <div class="font-bold text-amber-400 flex items-center justify-between">
+                <span class="flex items-center gap-1.5"><span>🎯</span> Stainless Steel Surface Uniformity Strategy:</span>
+                <span id="m4_badge_uniformity" class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">± 2.5°C Projected</span>
+              </div>
+              <p id="m4_uniformity_note">
+                Stainless Steel has very low thermal conductivity (k=16 W/m·K vs Aluminum k=167). Heat travels slowly sideways through thin SS plate. Calculating optimal profiling...
+              </p>
+            </div>
+
+            <!-- 2D THERMAL UNIFORMITY SIMULATION SECTION -->
+            <div class="pt-4 border-t border-slate-800 space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>🔬 2D SS Plate Surface Thermal Profile</span>
+                  </span>
+                  <button id="btn_run_sim_m4" onclick="triggerM4SimulationAnimation()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white shadow-md transition-all flex items-center gap-1.5 cursor-pointer border border-amber-400/30 active:scale-95">
+                    <span id="sim_m4_icon">▶</span>
+                    <span id="sim_m4_text">Start Simulation</span>
+                  </button>
+                </div>
+                <div class="flex items-center gap-3 text-[11px] font-mono">
+                  <span class="text-slate-400">Simulated Delta:</span>
+                  <span id="sim_m4_delta" class="text-emerald-400 font-bold">± 2.1°C (PASS)</span>
+                </div>
+              </div>
+
+              <!-- Canvas Container -->
+              <div class="relative bg-slate-950 rounded-xl border border-slate-800 p-3 overflow-hidden">
+                <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-2">
+                  <span>SS Surface Temperature Distribution</span>
+                  <div class="flex items-center gap-2">
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-blue-600 inline-block"></span> Edge Loss</span>
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-amber-500 inline-block"></span> Nominal Target</span>
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-red-500 inline-block"></span> Center Peak</span>
+                  </div>
+                </div>
+
+                <div class="flex justify-center">
+                  <canvas id="thermalCanvasM4" width="560" height="220" class="w-full max-w-[560px] h-[220px] rounded-lg border border-slate-800/80 bg-slate-900 shadow-inner"></canvas>
+                </div>
+
+                <!-- Simulation Temperature Stats -->
+                <div class="grid grid-cols-3 gap-2 mt-3 text-center text-xs font-mono">
+                  <div class="p-2 bg-slate-900 rounded-lg border border-slate-800/80">
+                    <div class="text-[10px] text-slate-500">Min Edge Temp</div>
+                    <div id="sim_m4_min_t" class="text-sm font-bold text-blue-400 mt-0.5">117.8°C</div>
+                  </div>
+                  <div class="p-2 bg-slate-900 rounded-lg border border-slate-800/80">
+                    <div class="text-[10px] text-slate-500">Target Nominal</div>
+                    <div id="sim_m4_nom_t" class="text-sm font-bold text-white mt-0.5">120.0°C</div>
+                  </div>
+                  <div class="p-2 bg-slate-900 rounded-lg border border-slate-800/80">
+                    <div class="text-[10px] text-slate-500">Max Center Peak</div>
+                    <div id="sim_m4_max_t" class="text-sm font-bold text-red-400 mt-0.5">122.1°C</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- JAVASCRIPT ENGINE -->
+  <script>
+    // Tab Switching
+    function switchTab(modeId) {
+      document.getElementById('mode1').classList.add('hidden');
+      document.getElementById('mode2').classList.add('hidden');
+      document.getElementById('mode3').classList.add('hidden');
+      document.getElementById('mode4').classList.add('hidden');
+
+      document.getElementById(modeId).classList.remove('hidden');
+
+      // Update button styling
+      const tabs = ['mode1', 'mode2', 'mode3', 'mode4'];
+      tabs.forEach(t => {
+        const btn = document.getElementById('tabBtn-' + t);
+        if (t === modeId) {
+          btn.className = 'px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-orange-500 text-slate-950 font-bold shadow';
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 text-slate-300 hover:text-white';
+        }
+      });
+
+      // If switching to mode2, trigger calculateMode2 to ensure canvas draws with full dimensions
+      if (modeId === 'mode2') {
+        setTimeout(() => { calculateMode2(); }, 50);
+      }
+      // If switching to mode4, trigger calculateMode4 to ensure canvas draws
+      if (modeId === 'mode4') {
+        setTimeout(() => { calculateMode4(); }, 50);
+      }
+    }
+
+    // =========================================================================
+    // MODE 1 LOGIC: QUICK CHECK & QUOTE
+    // =========================================================================
+    const m1Configs = {
+      cartridge: {
+        isTubular: true,
+        isFlat: false,
+        labelD: "Outer Diameter (OD):",
+        labelL: "Sheath Length (L):",
+        defaultD: 12.7,
+        defaultL: 200,
+        subD: "12.7 mm (1/2\")",
+        subL: "200 mm",
+        conditions: [
+          { id: "hole_tight", label: "Watlow Class A: Precision Reamed Hole (Fit < 0.05mm / 0.002\")", maxWD: 25, absWD: 35, hCoeff: 110 },
+          { id: "hole_reamed", label: "Watlow Class B: Standard Reamed Hole (Fit < 0.12mm / 0.005\")", maxWD: 20, absWD: 26, hCoeff: 85 },
+          { id: "hole_loose", label: "Watlow Class C: Standard Drilled Hole (Fit 0.25 - 0.40mm)", maxWD: 12, absWD: 16, hCoeff: 45 },
+          { id: "hole_sloppy", label: "Watlow Loose Fit / Worn Bore (Fit > 0.50mm / 0.020\")", maxWD: 6.5, absWD: 9.0, hCoeff: 28 },
+          { id: "still_air", label: "Open still air / radiant heating (No metal contact)", maxWD: 3.5, absWD: 5.0, hCoeff: 18 },
+          { id: "forced_air", label: "Forced air flow (> 3 m/s duct)", maxWD: 7.0, absWD: 10.0, hCoeff: 35 }
+        ],
+        sheathMaxTemp: 750,
+        sheathMaterial: "SS304 / SS321 / Incoloy 800"
+      },
+      immersion_water: {
+        isTubular: true,
+        isFlat: false,
+        hasElements: true,
+        labelD: "Tube Diameter (OD):",
+        labelL: "Immersion Length (L):",
+        defaultD: 8.0,
+        defaultL: 350,
+        subD: "8.0 mm (standard hairpin)",
+        subL: "350 mm",
+        conditions: [
+          { id: "clean_water", label: "Clean circulating water / rapid heat transfer", maxWD: 10.0, absWD: 14.0, hCoeff: 250 },
+          { id: "stagnant_water", label: "Stagnant tank water / potential scaling", maxWD: 7.5, absWD: 9.0, hCoeff: 180 }
+        ],
+        sheathMaxTemp: 450,
+        sheathMaterial: "Copper / SS304 / SS316L / Incoloy 825"
+      },
+      immersion_oil: {
+        isTubular: true,
+        isFlat: false,
+        hasElements: true,
+        labelD: "Tube Diameter (OD):",
+        labelL: "Immersion Length (L):",
+        defaultD: 10.0,
+        defaultL: 500,
+        subD: "10.0 mm (low watt density)",
+        subL: "500 mm",
+        conditions: [
+          { id: "circ_oil", label: "Forced circulating thermal oil (> 1.5 m/s)", maxWD: 3.8, absWD: 4.5, hCoeff: 120 },
+          { id: "stagnant_oil", label: "Stagnant heavy lubricating / fuel oil", maxWD: 2.2, absWD: 2.8, hCoeff: 70 }
+        ],
+        sheathMaxTemp: 350,
+        sheathMaterial: "Low Carbon Steel / SS304"
+      },
+      band_mica: {
+        isTubular: false,
+        isFlat: false,
+        isRing: true,
+        labelD: "Inside Clamping Diameter (ID):",
+        labelL: "Band Width (W):",
+        defaultD: 60,
+        defaultL: 50,
+        subD: "60 mm ID",
+        subL: "50 mm Width",
+        conditions: [
+          { id: "clamped_barrel", label: "Firmly clamped around steel cylinder / extruder barrel", maxWD: 4.5, absWD: 6.0, hCoeff: 35 },
+          { id: "loose_barrel", label: "Slightly loose clamp / uneven surface contact", maxWD: 3.0, absWD: 4.0, hCoeff: 22 }
+        ],
+        sheathMaxTemp: 450,
+        sheathMaterial: "Rust-Resistant Steel / SS430 / Mica insulation"
+      },
+      band_ceramic: {
+        isTubular: false,
+        isFlat: false,
+        isRing: true,
+        labelD: "Inside Clamping Diameter (ID):",
+        labelL: "Band Width (W):",
+        defaultD: 80,
+        defaultL: 75,
+        subD: "80 mm ID",
+        subL: "75 mm Width",
+        conditions: [
+          { id: "ceramic_insulated", label: "Ceramic knuckle band with external insulation jacket", maxWD: 8.0, absWD: 10.0, hCoeff: 45 },
+          { id: "ceramic_standard", label: "Standard ceramic band without insulation wrap", maxWD: 6.5, absWD: 8.5, hCoeff: 38 }
+        ],
+        sheathMaxTemp: 700,
+        sheathMaterial: "High-Alumina Steatite Ceramic + SS304"
+      },
+      cast_brass: {
+        isTubular: false,
+        isFlat: true,
+        labelD: "Plate / Cast Width (W):",
+        labelL: "Plate / Cast Length (L):",
+        defaultD: 150,
+        defaultL: 200,
+        subD: "150 mm Width",
+        subL: "200 mm Length",
+        conditions: [
+          { id: "cast_die_clamped", label: "Firmly bolted to mold / tooling platen", maxWD: 8.0, absWD: 10.5, hCoeff: 65 },
+          { id: "cast_open", label: "Natural convection in air", maxWD: 4.0, absWD: 5.5, hCoeff: 25 }
+        ],
+        sheathMaxTemp: 600,
+        sheathMaterial: "Cast Brass / Bronze Alloy"
+      },
+      silicone_rubber: {
+        isTubular: false,
+        isFlat: true,
+        labelD: "Mat Width (W):",
+        labelL: "Mat Length (L):",
+        defaultD: 150,
+        defaultL: 200,
+        subD: "150 mm Width",
+        subL: "200 mm Length",
+        conditions: [
+          { id: "srh_adhesive", label: "Factory PSA Acrylic Adhesive bonded to clean metal plate", maxWD: 0.8, absWD: 1.0, hCoeff: 20 },
+          { id: "srh_clamped", label: "Mechanically clamped between flat metal plates", maxWD: 1.2, absWD: 1.5, hCoeff: 35 },
+          { id: "srh_air", label: "Suspended in open room air", maxWD: 0.4, absWD: 0.6, hCoeff: 12 }
+        ],
+        sheathMaxTemp: 200,
+        sheathMaterial: "Reinforced Fiberglass Silicone Rubber (Max limit 200°C)"
+      }
+    };
+
+    function handleM1TypeChange() {
+      const type = document.getElementById('m1_type').value;
+      const cfg = m1Configs[type];
+
+      // Update labels
+      document.getElementById('m1_label_d').innerText = cfg.labelD;
+      document.getElementById('m1_label_l').innerText = cfg.labelL;
+      document.getElementById('m1_sub_d').innerText = cfg.subD;
+      document.getElementById('m1_sub_l').innerText = cfg.subL;
+
+      // Toggle width / elements visibility
+      if (cfg.isFlat) {
+        document.getElementById('m1_dim_wrap_w').classList.remove('hidden');
+        document.getElementById('m1_dim_wrap_cold').classList.add('hidden');
+      } else {
+        document.getElementById('m1_dim_wrap_w').classList.add('hidden');
+        document.getElementById('m1_dim_wrap_cold').classList.remove('hidden');
+      }
+
+      if (cfg.hasElements) {
+        document.getElementById('m1_dim_wrap_elements').classList.remove('hidden');
+      } else {
+        document.getElementById('m1_dim_wrap_elements').classList.add('hidden');
+      }
+
+      // Populate conditions dropdown
+      const condSelect = document.getElementById('m1_condition');
+      condSelect.innerHTML = '';
+      cfg.conditions.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.innerText = c.label;
+        condSelect.appendChild(opt);
+      });
+    }
+
+    function calculateMode1() {
+      const type = document.getElementById('m1_type').value;
+      const cfg = m1Configs[type];
+      const condId = document.getElementById('m1_condition').value;
+      const cond = cfg.conditions.find(c => c.id === condId) || cfg.conditions[0];
+
+      const diam = parseFloat(document.getElementById('m1_diam').value) || 1;
+      const len = parseFloat(document.getElementById('m1_length').value) || 1;
+      const width = parseFloat(document.getElementById('m1_width').value) || 1;
+      const cold = parseFloat(document.getElementById('m1_cold').value) || 0;
+      const watts = parseFloat(document.getElementById('m1_watts').value) || 0;
+      const volts = parseFloat(document.getElementById('m1_volts').value) || 230;
+      const amb = parseFloat(document.getElementById('m1_amb').value) || 25;
+      const elements = parseInt(document.getElementById('m1_elements').value) || 1;
+
+      // 1. Calculate Heated Surface Area (cm²)
+      let areaCm2 = 0;
+      if (cfg.isTubular) {
+        // Cylindrical element: A = pi * D * L_heated (in cm)
+        const heatedLenMm = Math.max(10, len - cold);
+        if (cfg.hasElements) {
+          // Immersion hairpins: each element has 2 legs
+          areaCm2 = (Math.PI * (diam / 10) * (heatedLenMm / 10)) * (elements * 2);
+        } else {
+          // Standard Cartridge
+          areaCm2 = Math.PI * (diam / 10) * (heatedLenMm / 10);
+        }
+      } else if (cfg.isRing) {
+        // Band heater: A = pi * D * W
+        areaCm2 = Math.PI * (diam / 10) * (len / 10);
+      } else if (cfg.isFlat) {
+        // Flat heater (Silicone / Plate): A = L * W (one side contact or both)
+        areaCm2 = (diam / 10) * (len / 10);
+      }
+
+      if (areaCm2 <= 0) areaCm2 = 1;
+      const areaIn2 = areaCm2 / 6.4516;
+
+      // 2. Watt Density
+      const wdCm2 = watts / areaCm2;
+      const wdIn2 = watts / areaIn2;
+
+      // 3. Max Recommended Watts for this heater size
+      const maxWattsRec = Math.round(areaCm2 * cond.maxWD);
+
+      // 4. Max Uncontrolled Runaway Equilibrium Surface Temp Estimation
+      // Natural convection + radiation balance:
+      // Heat Dissipated = h_eff * Area * (T_surf - T_amb)
+      // We estimate heat transfer coefficient h_eff (W/m²·K)
+      const areaM2 = areaCm2 / 10000;
+      const hEff = cond.hCoeff; // heat dissipation coefficient in W/m²·K
+      
+      // Steady state equilibrium: Watts = hEff * areaM2 * (T_eq - T_amb)
+      let tEquilibrium = amb + (watts / (hEff * areaM2));
+      // Cap for realistic maximum before heater element explodes
+      if (tEquilibrium > 1200) tEquilibrium = 1200;
+      tEquilibrium = Math.round(tEquilibrium);
+
+      // Electrical specs
+      const amp = volts > 0 ? (watts / volts).toFixed(2) : "0.00";
+      const ohm = watts > 0 ? ((volts * volts) / watts).toFixed(1) : "0.0";
+
+      // DOM Updates
+      document.getElementById('m1_res_wd_cm').innerText = wdCm2.toFixed(1);
+      document.getElementById('m1_res_wd_in').innerText = wdIn2.toFixed(1) + " W/in²";
+      document.getElementById('m1_limit_rec').innerText = `Recommended: ≤ ${cond.maxWD} W/cm²`;
+      document.getElementById('m1_limit_abs').innerText = `Hard Max: ${cond.absWD} W/cm²`;
+      document.getElementById('m1_res_max_watts').innerText = maxWattsRec;
+      document.getElementById('m1_res_runaway_temp').innerText = tEquilibrium;
+      document.getElementById('m1_res_area').innerText = `${areaCm2.toFixed(1)} cm² (${areaIn2.toFixed(1)} in²)`;
+      document.getElementById('m1_lbl_v').innerText = volts + "V";
+      document.getElementById('m1_res_amp').innerText = amp + " A";
+      document.getElementById('m1_res_ohm').innerText = ohm + " Ω";
+      document.getElementById('m1_res_sheath_limit').innerText = `${cfg.sheathMaterial}: Max ${cfg.sheathMaxTemp}°C`;
+
+      // Status Badge and Color Bar
+      const pctOfLimit = (wdCm2 / cond.maxWD) * 100;
+      const barEl = document.getElementById('m1_bar_wd');
+      const badgeEl = document.getElementById('m1_status_badge');
+      const advBox = document.getElementById('m1_advisory_box');
+      const advTitle = document.getElementById('m1_advisory_title');
+      const advText = document.getElementById('m1_advisory_text');
+
+      barEl.style.width = Math.min(100, Math.max(5, (wdCm2 / cond.absWD) * 100)) + "%";
+
+      if (wdCm2 <= cond.maxWD) {
+        // Green - Safe
+        barEl.className = 'h-full bg-emerald-500 transition-all duration-300';
+        badgeEl.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+        badgeEl.innerText = 'Safe Watt Density';
+
+        advBox.className = 'p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-xs space-y-1';
+        advTitle.className = 'font-bold text-emerald-400 flex items-center gap-1.5';
+        advTitle.innerHTML = '<span>✓</span> Safe Engineering Margin for Long Heater Lifespan';
+        advText.innerHTML = `Watt density of <strong>${wdCm2.toFixed(1)} W/cm²</strong> is within safe tolerance for ${cfg.sheathMaterial}. Expected lifespan is optimal.`;
+      } else if (wdCm2 <= cond.absWD) {
+        // Yellow - High
+        barEl.className = 'h-full bg-amber-500 transition-all duration-300';
+        badgeEl.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30';
+        badgeEl.innerText = 'High Density - Warning';
+
+        advBox.className = 'p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-xs space-y-1';
+        advTitle.className = 'font-bold text-amber-400 flex items-center gap-1.5';
+        advTitle.innerHTML = '<span>⚠️</span> High Watt Density Warning - Precision Fit Required';
+        advText.innerHTML = `Heater operates at <strong>${wdCm2.toFixed(1)} W/cm²</strong>. This exceeds normal standard (${cond.maxWD} W/cm²). You MUST use tight reamed holes, high-grade heat transfer paste, and continuous PID temperature monitoring to prevent premature burnout.`;
+      } else {
+        // Red - Danger
+        barEl.className = 'h-full bg-red-500 transition-all duration-300';
+        badgeEl.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase bg-red-500/20 text-red-400 border border-red-500/30';
+        badgeEl.innerText = 'DANGER: Overheated';
+
+        advBox.className = 'p-3.5 rounded-xl border border-red-500/30 bg-red-500/10 text-xs space-y-1';
+        advTitle.className = 'font-bold text-red-400 flex items-center gap-1.5';
+        advTitle.innerHTML = '<span>⛔</span> CRITICAL DANGER: Burnout Failure Imminent';
+        advText.innerHTML = `Watt density <strong>${wdCm2.toFixed(1)} W/cm²</strong> significantly exceeds the absolute physical limit (${cond.absWD} W/cm²). The internal resistance wire will overheat and burn out rapidly. You must reduce wattage to under <strong>${maxWattsRec}W</strong> or increase dimensions.`;
+      }
+
+      // Check runaway vs sheath limit
+      if (tEquilibrium > cfg.sheathMaxTemp) {
+        advText.innerHTML += `<br><span class="text-red-400 font-bold">• Without external control, equilibrium temperature (${tEquilibrium}°C) will exceed material sheath limit (${cfg.sheathMaxTemp}°C) and destroy the heater.</span>`;
+      }
+    }
+
+    function setM1Preset(presetKey) {
+      if (presetKey === 'cart_std') {
+        document.getElementById('m1_type').value = 'cartridge';
+        handleM1TypeChange();
+        document.getElementById('m1_diam').value = 12.7;
+        document.getElementById('m1_length').value = 200;
+        document.getElementById('m1_cold').value = 15;
+        document.getElementById('m1_watts').value = 600;
+        document.getElementById('m1_volts').value = 230;
+      } else if (presetKey === 'band_nozzle') {
+        document.getElementById('m1_type').value = 'band_mica';
+        handleM1TypeChange();
+        document.getElementById('m1_diam').value = 50;
+        document.getElementById('m1_length').value = 50;
+        document.getElementById('m1_watts').value = 350;
+        document.getElementById('m1_volts').value = 230;
+      } else if (presetKey === 'srh_mat') {
+        document.getElementById('m1_type').value = 'silicone_rubber';
+        handleM1TypeChange();
+        document.getElementById('m1_diam').value = 200;
+        document.getElementById('m1_length').value = 300;
+        document.getElementById('m1_watts').value = 300;
+        document.getElementById('m1_volts').value = 230;
+      } else if (presetKey === 'imm_water_3k') {
+        document.getElementById('m1_type').value = 'immersion_water';
+        handleM1TypeChange();
+        document.getElementById('m1_diam').value = 8.0;
+        document.getElementById('m1_length').value = 320;
+        document.getElementById('m1_elements').value = 3;
+        document.getElementById('m1_watts').value = 3000;
+        document.getElementById('m1_volts').value = 230;
+      }
+      calculateMode1();
+    }
+
+
+    // =========================================================================
+    // MODE 2 LOGIC: METAL PLATEN & UNIFORMITY (±3°C)
+    // =========================================================================
+    const plateMaterials = {
+      aluminum: { density: 2700, cp: 0.90, k: 167, name: "Aluminum 6061" },
+      steel: { density: 7850, cp: 0.49, k: 45, name: "Tool Steel" },
+      stainless: { density: 7930, cp: 0.50, k: 16, name: "SS304/SS316" },
+      brass: { density: 8500, cp: 0.38, k: 115, name: "Brass" }
+    };
+
+    function calculateMode2() {
+      const L = parseFloat(document.getElementById('m2_length').value) || 400; // mm
+      const W = parseFloat(document.getElementById('m2_width').value) || 400; // mm
+      const H = parseFloat(document.getElementById('m2_thick').value) || 35; // mm
+      const matKey = document.getElementById('m2_material').value;
+      const mat = plateMaterials[matKey];
+      const tTarget = parseFloat(document.getElementById('m2_target_temp').value) || 180;
+      const tAmb = parseFloat(document.getElementById('m2_amb_temp').value) || 25;
+      const timeMin = parseFloat(document.getElementById('m2_time_min').value) || 30;
+      const insul = document.getElementById('m2_insulation').value;
+      
+      // Custom diameter reading
+      const cartDiamInput = document.getElementById('m2_cart_diam_input');
+      const cartDiam = cartDiamInput ? (parseFloat(cartDiamInput.value) || 12.0) : 12.0;
+
+      // 1. Platen Volume & Mass
+      const volM3 = (L / 1000) * (W / 1000) * (H / 1000);
+      const massKg = volM3 * mat.density;
+
+      // 2. Sensible Heat Energy Required to reach target temp
+      // Q1 (kJ) = mass (kg) * Cp (kJ/kg·K) * deltaT
+      const deltaT = Math.max(5, tTarget - tAmb);
+      const q1Kj = massKg * mat.cp * deltaT;
+      const timeHours = timeMin / 60;
+      const pHeatupKw = q1Kj / (3600 * timeHours);
+
+      // 3. Steady State Radiation & Convection Losses
+      // Total Surface Area of Platen
+      const topBottomArea = 2 * (L / 1000) * (W / 1000);
+      const sidesArea = 2 * ((L / 1000) * (H / 1000)) + 2 * ((W / 1000) * (H / 1000));
+      let activeLossArea = topBottomArea + sidesArea;
+
+      if (insul === 'bottom_sides') {
+        // Only top surface actively radiates
+        activeLossArea = (L / 1000) * (W / 1000) + (sidesArea * 0.2);
+      } else if (insul === 'press_platen') {
+        // Clamped in press with insulation board
+        activeLossArea = (topBottomArea * 0.15) + sidesArea;
+      }
+
+      // Loss factor at operating temp (W/m²)
+      // Approx 15 W/m²·K convection + radiation
+      const lossFactorWattsPerM2 = 14 * deltaT;
+      const pLossKw = (activeLossArea * lossFactorWattsPerM2) / 1000;
+
+      // 4. Total Recommended Power (kW) with 25% safety factor
+      const pTotalKw = (pHeatupKw + pLossKw) * 1.25;
+      const pTotalWatts = Math.round(pTotalKw * 1000);
+
+      // Workflow mode: 'auto' (we calculate optimal) vs 'custom' (customer specifies qty & watts)
+      const isCustomWorkflow = window.m2WorkflowMode === 'custom';
+
+      // 5. Cartridge Heater Count & Spacing for ±3°C Uniformity
+      // Heaters run along the Length (L), spaced along Width (W)
+      const heaterLengthMm = Math.max(50, L - 20); // 10mm recessed cold clearance each side
+      const hCenter = H / 2;
+
+      let numHeaters = 6;
+      let wattsPerHeater = 500;
+      let effectiveTotalWatts = pTotalWatts;
+
+      if (isCustomWorkflow) {
+        // Customer specified values
+        numHeaters = parseInt(document.getElementById('m2_cust_qty').value) || 1;
+        wattsPerHeater = parseFloat(document.getElementById('m2_cust_watts').value) || 100;
+        effectiveTotalWatts = numHeaters * wattsPerHeater;
+        const totalCustKw = (effectiveTotalWatts / 1000).toFixed(2);
+        document.getElementById('m2_lbl_cust_total').innerText = `${totalCustKw} kW (${numHeaters} pcs x ${wattsPerHeater}W)`;
+      } else {
+        // Auto-Engineered by tool
+        let idealPitch = 2.8 * hCenter;
+        if (matKey === 'aluminum') idealPitch = 3.2 * hCenter;
+        if (matKey === 'stainless') idealPitch = 2.0 * hCenter;
+
+        numHeaters = Math.round(W / idealPitch);
+        if (numHeaters < 3) numHeaters = 3;
+        if (numHeaters % 2 !== 0 && W >= 300) numHeaters += 1;
+
+        wattsPerHeater = Math.round(pTotalWatts / numHeaters);
+        effectiveTotalWatts = pTotalWatts;
+      }
+
+      const actualPitch = W / numHeaters;
+      const ratioPitchDepth = (actualPitch / hCenter).toFixed(1);
+
+      // Heated surface area per cartridge (cm²)
+      const heatedAreaEach = Math.PI * (cartDiam / 10) * ((heaterLengthMm - 20) / 10);
+      const wdEach = (wattsPerHeater / heatedAreaEach).toFixed(1);
+
+      // Edge heater compensation
+      const edgeDist = Math.round(actualPitch * 0.55);
+
+      // DOM Updates
+      document.getElementById('m2_res_mass').innerText = massKg.toFixed(1);
+      document.getElementById('m2_res_kw_heatup').innerText = pHeatupKw.toFixed(2);
+      document.getElementById('m2_res_kw_loss').innerText = pLossKw.toFixed(2);
+      document.getElementById('m2_res_kw_total').innerText = (effectiveTotalWatts / 1000).toFixed(2);
+
+      document.getElementById('m2_res_qty').innerText = numHeaters;
+      document.getElementById('m2_res_diam_used').innerText = cartDiam.toFixed(1);
+      document.getElementById('m2_res_hlen').innerText = heaterLengthMm;
+      document.getElementById('m2_res_watts_each').innerText = Math.round(wattsPerHeater);
+      document.getElementById('m2_res_wd_each').innerText = wdEach;
+
+      document.getElementById('m2_res_pitch').innerText = actualPitch.toFixed(1) + " mm";
+      document.getElementById('m2_res_depth').innerText = hCenter.toFixed(1) + " mm";
+      document.getElementById('m2_res_ratio').innerText = `${ratioPitchDepth} (Target: ≤ 2.5–3.2)`;
+      document.getElementById('m2_res_edge_dist').innerText = edgeDist + " mm";
+
+      // Uniformity Advisory & Design Comparison Note
+      const edgeNoteEl = document.getElementById('m2_edge_note');
+      const edgeWatts = Math.round(wattsPerHeater * 1.2);
+      const innerCount = Math.max(0, numHeaters - 2);
+      const centerWatts = innerCount > 0 ? Math.round((effectiveTotalWatts - (2 * edgeWatts)) / innerCount) : wattsPerHeater;
+
+      if (isCustomWorkflow) {
+        // Provide engineering feedback on customer's design
+        const powerDiff = effectiveTotalWatts - pTotalWatts;
+        const speedFactor = (effectiveTotalWatts / Math.max(100, pTotalWatts)).toFixed(1);
+        const actualHeatupMin = Math.round(timeMin / Math.max(0.2, (effectiveTotalWatts - (pLossKw * 1000)) / (pHeatupKw * 1000)));
+
+        let verdictColor = "text-emerald-400";
+        let verdictMsg = `Customer's design delivers <strong>${(effectiveTotalWatts/1000).toFixed(2)} kW</strong>.`;
+        if (effectiveTotalWatts > pTotalWatts * 1.5) {
+          verdictColor = "text-amber-400";
+          verdictMsg += ` <strong>Note:</strong> Significantly more power than needed (${speedFactor}x baseline). It will heat up very fast (~${actualHeatupMin} mins instead of ${timeMin} mins), but temperature controller must have fast cycle time (SSR or SCR) to avoid overshoot!`;
+        } else if (effectiveTotalWatts < pTotalWatts * 0.8) {
+          verdictColor = "text-red-400";
+          verdictMsg += ` <strong>Warning:</strong> Underpowered! It will take ~${actualHeatupMin} mins to heat up or may struggle to reach target temperature under heat losses.`;
+        } else {
+          verdictMsg += ` Power sizing is well balanced for normal operational stability.`;
+        }
+
+        edgeNoteEl.innerHTML = `
+          <div class="${verdictColor} font-bold mb-1">🔍 Customer Design Verification Verdict:</div>
+          ${verdictMsg}
+          <br>• Total Specified: <strong>${numHeaters} Pcs</strong> @ <strong>${wattsPerHeater}W</strong> each.
+          <br>• Customer Pitch Spacing: <strong>${actualPitch.toFixed(1)} mm</strong> (Ratio S/H: ${ratioPitchDepth}).
+          <br>• Watt Density per heater: <strong>${wdEach} W/cm²</strong> (${parseFloat(wdEach) > 15 ? '<span class="text-red-400 font-bold">HIGH - Needs tight reamed hole!</span>' : '<span class="text-emerald-400 font-bold">SAFE</span>'}).
+          <br>• Uniformity Advice for Customer: If they run all ${numHeaters} heaters at identical ${wattsPerHeater}W, the outer edges will run 3°C–6°C cooler than the center. Recommend either dual-zone temperature control or setting outer 2 heaters to ${edgeWatts}W and inner ${innerCount} heaters to ${centerWatts}W.
+        `;
+      } else {
+        edgeNoteEl.innerHTML = `
+          Plate edges dissipate up to 25% more heat into ambient air. To achieve strict <strong>±3°C</strong> on this ${mat.name} platen:
+          <br>• <strong>Total Heaters:</strong> <strong>${numHeaters} Pcs</strong> (2 Outer + ${innerCount} Inner)
+          <br>• Outer 2 cartridge heaters: <strong>${edgeWatts} W</strong> each (Edge loss compensation).
+          <br>• Inner ${innerCount} cartridge heaters: <strong>${centerWatts} W</strong> each (Center working zone).
+          <br>• Drill the outer holes <strong>${edgeDist} mm</strong> from plate perimeter.
+          ${matKey === 'stainless' ? '<br><span class="text-amber-400 font-bold">• Note: Stainless Steel has very low thermal conductivity (k=16). If possible, recommend Aluminum platen (k=167) for strict ±3°C uniformity!</span>' : ''}
+        `;
+      }
+
+      // Run 2D Thermal Uniformity Simulation
+      drawThermalSimulation({
+        L, W, H, numHeaters, actualPitch, edgeDist,
+        cartDiam, tTarget, tAmb, matKey, mat, edgeWatts, centerWatts,
+        isCustom: isCustomWorkflow
+      });
+    }
+
+    // Toggle between Auto-Engineer and Customer-Design Mode
+    window.m2WorkflowMode = 'auto';
+    function setM2Workflow(mode) {
+      window.m2WorkflowMode = mode;
+      const btnAuto = document.getElementById('btn_workflow_auto');
+      const btnCust = document.getElementById('btn_workflow_custom');
+      const overrideBox = document.getElementById('m2_customer_override_box');
+      const badge = document.getElementById('m2_workflow_badge');
+
+      if (mode === 'custom') {
+        btnCust.className = 'py-2 px-3 rounded-lg text-xs font-bold transition-all bg-purple-600 text-white shadow';
+        btnAuto.className = 'py-2 px-3 rounded-lg text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:text-white border border-slate-700';
+        overrideBox.classList.remove('hidden');
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 border border-purple-500/30';
+        badge.innerText = "Customer Specs Verification";
+      } else {
+        btnAuto.className = 'py-2 px-3 rounded-lg text-xs font-bold transition-all bg-blue-500 text-slate-950 shadow';
+        btnCust.className = 'py-2 px-3 rounded-lg text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:text-white border border-slate-700';
+        overrideBox.classList.add('hidden');
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30';
+        badge.innerText = "Auto Tooling Sizing";
+      }
+      calculateMode2();
+    }
+
+    function setM2Diam(diamVal) {
+      const input = document.getElementById('m2_cart_diam_input');
+      if (input) {
+        input.value = diamVal;
+        calculateMode2();
+      }
+    }
+
+    // 2D Thermal Simulation Render Engine
+    function drawThermalSimulation(params) {
+      window.lastSimParams = params;
+      // If an animation isn't actively running, render the current steady state
+      if (!window.simAnimTimer) {
+        renderSimFrame(params, 1.0);
+      }
+    }
+
+    // Dynamic Simulation Heat-Up Animation Engine
+    window.simAnimTimer = null;
+    window.simAnimProgress = 1.0;
+    window.lastSimParams = null;
+
+    function triggerSimulationAnimation() {
+      // Ensure we have the latest parameters calculated
+      calculateMode2();
+      if (!window.lastSimParams) return;
+
+      const btn = document.getElementById('btn_run_simulation');
+      const btnText = document.getElementById('sim_btn_text');
+      const btnIcon = document.getElementById('sim_btn_icon');
+
+      if (window.simAnimTimer) {
+        clearInterval(window.simAnimTimer);
+        window.simAnimTimer = null;
+      }
+
+      if (btn) btn.classList.add('animate-pulse', 'ring-2', 'ring-blue-400');
+      if (btnIcon) btnIcon.innerText = '⏳';
+      if (btnText) btnText.innerText = 'Simulating Heat-Up...';
+
+      window.simAnimProgress = 0.05;
+      const startTime = Date.now();
+      const durationMs = 1800; // 1.8s smooth heat dissipation simulation
+
+      window.simAnimTimer = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        let progress = Math.min(1.0, elapsed / durationMs);
+        // Ease-out curve for natural thermal dissipation
+        let easeProgress = Math.sin((progress * Math.PI) / 2);
+        
+        renderSimFrame(window.lastSimParams, easeProgress);
+
+        if (progress >= 1.0) {
+          clearInterval(window.simAnimTimer);
+          window.simAnimTimer = null;
+          if (btn) btn.classList.remove('animate-pulse', 'ring-2', 'ring-blue-400');
+          if (btnIcon) btnIcon.innerText = '🔄';
+          if (btnText) btnText.innerText = 'Re-Run Simulation';
+        }
+      }, 30);
+    }
+
+    function renderSimFrame(params, heatUpFactor = 1.0) {
+      const canvas = document.getElementById('thermalCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const cw = canvas.width;
+      const ch = canvas.height;
+
+      ctx.clearRect(0, 0, cw, ch);
+
+      // Padding for platen representation
+      const padX = 35;
+      const padY = 25;
+      const plateW = cw - (padX * 2);
+      const plateH = ch - (padY * 2);
+
+      // Thermal conductivity coefficient
+      const kFactor = params.matKey === 'aluminum' ? 0.65 : params.matKey === 'brass' ? 0.9 : params.matKey === 'steel' ? 1.4 : 2.5;
+
+      // Spacing ratio effect on ripple
+      const spacingPenalty = Math.max(0.5, (params.actualPitch / (params.H / 2)) - 2.5) * 1.2;
+      const tempVariation = (1.5 * kFactor * spacingPenalty);
+      const simDelta = Math.min(8.5, Math.max(0.8, tempVariation));
+
+      // Current animated temperature values
+      const currentNominal = params.tAmb + (params.tTarget - params.tAmb) * heatUpFactor;
+      const currentDelta = simDelta * heatUpFactor;
+      const minT = (currentNominal - currentDelta).toFixed(1);
+      const maxT = (currentNominal + currentDelta).toFixed(1);
+
+      // Update simulation indicators
+      const deltaEl = document.getElementById('sim_temp_delta');
+      const minEl = document.getElementById('sim_min_temp');
+      const targetEl = document.getElementById('sim_target_temp');
+      const maxEl = document.getElementById('sim_max_temp');
+
+      if (minEl) minEl.innerText = minT + "°C";
+      if (targetEl) targetEl.innerText = currentNominal.toFixed(1) + "°C";
+      if (maxEl) maxEl.innerText = maxT + "°C";
+
+      if (deltaEl) {
+        if (simDelta <= 3.0) {
+          deltaEl.className = 'text-emerald-400 font-bold';
+          deltaEl.innerText = `± ${simDelta.toFixed(1)}°C (PASS: within ±3°C)`;
+        } else {
+          deltaEl.className = 'text-amber-400 font-bold';
+          deltaEl.innerText = `± ${simDelta.toFixed(1)}°C (WARNING: exceeds ±3°C)`;
+        }
+      }
+
+      // Draw background platen block
+      ctx.fillStyle = '#0f172a';
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 2;
+      ctx.fillRect(padX, padY, plateW, plateH);
+      ctx.strokeRect(padX, padY, plateW, plateH);
+
+      // Render 2D Thermal Heatmap Gradient across width
+      const numSlices = 140;
+      const sliceW = plateW / numSlices;
+
+      for (let i = 0; i < numSlices; i++) {
+        const xPos = padX + (i * sliceW);
+        const normX = i / numSlices; // 0 to 1 across width
+
+        // Calculate temperature at this cross-section
+        // Sum influence of all cartridge heaters along width
+        let localIntensity = 0;
+        for (let h = 0; h < params.numHeaters; h++) {
+          const heaterNormX = (h + 0.5) / params.numHeaters;
+          const dist = Math.abs(normX - heaterNormX);
+          // Gaussian heat spread expanding with heatUpFactor
+          const spread = (0.28 / kFactor) * Math.max(0.35, heatUpFactor);
+          localIntensity += Math.exp(-(dist * dist) / (2 * spread * spread));
+        }
+
+        // Edge cooling penalty (ambient dissipation)
+        const edgeDistNorm = Math.min(normX, 1 - normX);
+        const edgePenalty = Math.exp(-edgeDistNorm * 8) * 0.45;
+        localIntensity -= edgePenalty;
+
+        // Apply heat up animation scale
+        localIntensity = localIntensity * heatUpFactor;
+
+        // Map intensity to RGB color (Blue -> Orange -> Red)
+        const heatNorm = Math.max(0, Math.min(1, (localIntensity - 0.5 * heatUpFactor) / (1.1 * heatUpFactor || 0.1)));
+        
+        let r = Math.floor(30 + (heatNorm * 225 * heatUpFactor));
+        let g = Math.floor(60 + (heatNorm > 0.5 ? (1 - heatNorm) * 120 : heatNorm * 110) * heatUpFactor);
+        let b = Math.floor(220 * (1 - heatNorm * 0.8));
+
+        ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+        ctx.fillRect(xPos, padY + 2, sliceW + 1, plateH - 4);
+      }
+
+      // Draw ALL Cartridge Heater Bore Holes and Centerlines
+      const showLabelsEvery = params.numHeaters > 14 ? 2 : 1;
+      for (let h = 0; h < params.numHeaters; h++) {
+        const heaterX = padX + ((h + 0.5) / params.numHeaters) * plateW;
+
+        // Draw heater centerline
+        ctx.setLineDash([3, 3]);
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(heaterX, padY);
+        ctx.lineTo(heaterX, padY + plateH);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Draw Cartridge body simulation inside platen
+        const cartVisualWidth = Math.max(6, Math.min(18, (plateW / params.numHeaters) * 0.5));
+        ctx.fillStyle = '#1e293b';
+        ctx.strokeStyle = '#f97316';
+        ctx.lineWidth = 1.5;
+        ctx.fillRect(heaterX - cartVisualWidth / 2, padY + 8, cartVisualWidth, plateH - 16);
+        ctx.strokeRect(heaterX - cartVisualWidth / 2, padY + 8, cartVisualWidth, plateH - 16);
+
+        // Heater Core glow (expands as heated)
+        const glowRadius = Math.min(5, (cartVisualWidth / 2 - 1) * Math.max(0.5, heatUpFactor));
+        ctx.fillStyle = heatUpFactor > 0.8 ? '#fbbf24' : '#f97316';
+        ctx.beginPath();
+        ctx.arc(heaterX, padY + plateH / 2, Math.max(2, glowRadius), 0, Math.PI * 2);
+        ctx.fill();
+
+        // Label heater ID and Wattage (adaptive spacing)
+        if (h % showLabelsEvery === 0 || h === params.numHeaters - 1) {
+          ctx.font = params.numHeaters > 10 ? '8px JetBrains Mono, monospace' : '9px JetBrains Mono, monospace';
+          ctx.fillStyle = '#f8fafc';
+          ctx.textAlign = 'center';
+          const isOuter = (h === 0 || h === params.numHeaters - 1);
+          const wVal = isOuter ? params.edgeWatts : params.centerWatts;
+          ctx.fillText(`H${h+1}`, heaterX, padY - 8);
+          ctx.fillStyle = '#fb923c';
+          ctx.fillText(`${wVal}W`, heaterX, padY + plateH + 15);
+        }
+      }
+
+      // Dimension Arrow / Label & Heat-Up status
+      ctx.font = '10px JetBrains Mono, monospace';
+      ctx.fillStyle = '#38bdf8';
+      ctx.textAlign = 'center';
+      const statusText = heatUpFactor < 1.0 ? `[Simulating Heat-Up: ${Math.round(heatUpFactor * 100)}%]` : `[Steady State: ±${simDelta.toFixed(1)}°C]`;
+      ctx.fillText(`Platen Width W = ${params.W} mm (Pitch S = ${params.actualPitch.toFixed(1)} mm, ${params.numHeaters} Heaters) — ${statusText}`, cw / 2, ch - 2);
+    }
+
+
+    // =========================================================================
+    // MODE 3 LOGIC: TANK / WATER IMMERSION HEATING
+    // =========================================================================
+    const liquidProperties = {
+      water: { cp: 4.186, density: 1.0, name: "Water", maxWD: 9.0 },
+      oil: { cp: 2.1, density: 0.88, name: "Thermal Oil", maxWD: 2.8 },
+      glycol: { cp: 3.5, density: 1.05, name: "50% Glycol", maxWD: 6.5 }
+    };
+
+    function toggleM3Arch() {
+      const archRadios = document.getElementsByName('m3_arch');
+      let arch = 'direct';
+      for (let r of archRadios) {
+        if (r.checked) { arch = r.value; break; }
+      }
+
+      const wrapJacketParams = document.getElementById('m3_wrap_jacket_params');
+      const wrapJacketMetrics = document.getElementById('m3_wrap_jacket_metrics');
+      const lblDirect = document.getElementById('lbl_arch_direct');
+      const lblJacket = document.getElementById('lbl_arch_jacket');
+      const cardTotal = document.getElementById('m3_card_total_kw');
+      const lblKwTitle = document.getElementById('m3_lbl_kw_title');
+      const hwBadge = document.getElementById('m3_lbl_hardware_badge');
+
+      const hdrMedium = document.getElementById('m3_hdr_medium');
+
+      if (arch === 'jacket') {
+        wrapJacketParams.classList.remove('hidden');
+        wrapJacketMetrics.classList.remove('hidden');
+        lblJacket.className = 'flex items-start gap-2.5 p-2.5 rounded-xl border border-amber-500 bg-amber-500/10 cursor-pointer transition-all';
+        lblDirect.className = 'flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-700 bg-slate-800/60 cursor-pointer hover:border-teal-500 transition-all';
+        if (hdrMedium) {
+          hdrMedium.className = 'text-xs font-mono font-bold text-amber-400';
+          hdrMedium.innerText = 'Double-Layer Thermal Oil Jacket';
+        }
+        if (cardTotal) {
+          cardTotal.className = 'p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between';
+        }
+        if (lblKwTitle) {
+          lblKwTitle.className = 'text-xs font-bold text-amber-300';
+          lblKwTitle.innerText = 'Total Thermal Oil Jacket Immersion Rating (Water + Oil + Losses + 20% Margin):';
+        }
+        if (hwBadge) {
+          hwBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30';
+          hwBadge.innerText = 'Jacket Thermal Oil Immersion (Low Watt Density)';
+        }
+      } else {
+        wrapJacketParams.classList.add('hidden');
+        wrapJacketMetrics.classList.add('hidden');
+        lblDirect.className = 'flex items-start gap-2.5 p-2.5 rounded-xl border border-teal-500 bg-teal-500/10 cursor-pointer transition-all';
+        lblJacket.className = 'flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-700 bg-slate-800/60 cursor-pointer hover:border-amber-500 transition-all';
+        if (hdrMedium) {
+          hdrMedium.className = 'text-xs font-mono font-bold text-teal-400';
+          hdrMedium.innerText = 'Direct Water Immersion';
+        }
+        if (cardTotal) {
+          cardTotal.className = 'p-4 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-between';
+        }
+        if (lblKwTitle) {
+          lblKwTitle.className = 'text-xs font-bold text-teal-300';
+          lblKwTitle.innerText = 'Total Recommended Heater Rating (with 20% safety margin):';
+        }
+        if (hwBadge) {
+          hwBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-teal-500/20 text-teal-400 border border-teal-500/30';
+          hwBadge.innerText = 'Direct Water Immersion';
+        }
+      }
+    }
+
+    function toggleM3Shape() {
+      const shapeRadios = document.getElementsByName('m3_shape');
+      let shape = 'rect';
+      for (let r of shapeRadios) {
+        if (r.checked) { shape = r.value; break; }
+      }
+
+      document.getElementById('m3_wrap_rect').classList.add('hidden');
+      document.getElementById('m3_wrap_cyl').classList.add('hidden');
+      document.getElementById('m3_wrap_direct').classList.add('hidden');
+
+      if (shape === 'rect') document.getElementById('m3_wrap_rect').classList.remove('hidden');
+      if (shape === 'cyl') document.getElementById('m3_wrap_cyl').classList.remove('hidden');
+      if (shape === 'direct') document.getElementById('m3_wrap_direct').classList.remove('hidden');
+    }
+
+    function calculateMode3() {
+      const archRadios = document.getElementsByName('m3_arch');
+      let isJacketMode = false;
+      for (let r of archRadios) {
+        if (r.checked && r.value === 'jacket') { isJacketMode = true; break; }
+      }
+
+      const shapeRadios = document.getElementsByName('m3_shape');
+      let shape = 'rect';
+      for (let r of shapeRadios) {
+        if (r.checked) { shape = r.value; break; }
+      }
+
+      const liqKey = document.getElementById('m3_liquid').value;
+      const liq = liquidProperties[liqKey];
+      const timeHours = parseFloat(document.getElementById('m3_time_hours').value) || 1;
+      const t1 = parseFloat(document.getElementById('m3_temp_init').value) || 25;
+      const t2 = parseFloat(document.getElementById('m3_temp_target').value) || 75;
+      const cover = document.getElementById('m3_cover').value;
+
+      // 1. Calculate Inner Water Liters & Transfer / Exterior Surface Areas
+      let litersWater = 0;
+      let innerTransferAreaM2 = 0; // Area between inner water and jacket oil
+      let outerExtAreaM2 = 0;      // Ambient heat loss surface area
+      let oilVolLiters = 0;
+
+      const jacketGapMm = parseFloat(document.getElementById('m3_jacket_gap') ? document.getElementById('m3_jacket_gap').value : 40) || 40;
+      const gapM = jacketGapMm / 1000;
+
+      if (shape === 'rect') {
+        const L = (parseFloat(document.getElementById('m3_rect_l').value) || 100) / 1000; // in meters
+        const W = (parseFloat(document.getElementById('m3_rect_w').value) || 100) / 1000;
+        const H = (parseFloat(document.getElementById('m3_rect_h').value) || 100) / 1000;
+        
+        litersWater = (L * W * H) * 1000;
+        // Wetted contact surface area between inner water & jacket: sides + bottom
+        innerTransferAreaM2 = (2 * (L * H + W * H)) + (L * W);
+        
+        if (isJacketMode) {
+          // Outer jacket dimensions (jacket surrounds sides + bottom)
+          const L_out = L + 2 * gapM;
+          const W_out = W + 2 * gapM;
+          const H_out = H + gapM;
+          const outerVolM3 = (L_out * W_out * H_out);
+          const innerVolM3 = (L * W * H);
+          const oilVolM3 = Math.max(0.005, outerVolM3 - innerVolM3);
+          oilVolLiters = oilVolM3 * 1000;
+          outerExtAreaM2 = (2 * (L_out * H_out + W_out * H_out)) + (L_out * W_out);
+        } else {
+          outerExtAreaM2 = innerTransferAreaM2;
+        }
+      } else if (shape === 'cyl') {
+        const D = (parseFloat(document.getElementById('m3_cyl_d').value) || 100) / 1000; // in meters
+        const H = (parseFloat(document.getElementById('m3_cyl_h').value) || 100) / 1000;
+        const r = D / 2;
+
+        litersWater = (Math.PI * r * r * H) * 1000;
+        // Wetted surface area: circumference + bottom
+        innerTransferAreaM2 = (Math.PI * D * H) + (Math.PI * r * r);
+
+        if (isJacketMode) {
+          const D_out = D + 2 * gapM;
+          const r_out = D_out / 2;
+          const H_out = H + gapM;
+          const outerVolM3 = (Math.PI * r_out * r_out * H_out);
+          const innerVolM3 = (Math.PI * r * r * H);
+          const oilVolM3 = Math.max(0.005, outerVolM3 - innerVolM3);
+          oilVolLiters = oilVolM3 * 1000;
+          outerExtAreaM2 = (Math.PI * D_out * H_out) + (Math.PI * r_out * r_out);
+        } else {
+          outerExtAreaM2 = innerTransferAreaM2;
+        }
+      } else {
+        litersWater = parseFloat(document.getElementById('m3_liters_direct').value) || 100;
+        const cubeSideM = Math.cbrt(litersWater / 1000);
+        innerTransferAreaM2 = 5 * (cubeSideM * cubeSideM);
+        if (isJacketMode) {
+          // Approx annular volume: 20-25% of inner volume for standard gap
+          oilVolLiters = litersWater * 0.22;
+          const outerCubeSide = cubeSideM + 2 * gapM;
+          outerExtAreaM2 = 5 * (outerCubeSide * outerCubeSide);
+        } else {
+          outerExtAreaM2 = innerTransferAreaM2;
+        }
+      }
+
+      const massWaterKg = litersWater * liq.density;
+      const deltaTWater = Math.max(1, t2 - t1);
+
+      // 2. Pure Sensible Heat for Inner Water
+      const qWaterKj = massWaterKg * liq.cp * deltaTWater;
+      const pWaterHeatupKw = qWaterKj / (3600 * timeHours);
+
+      // 3. Ambient Heat Losses (convection & top evaporation)
+      let lossCoeff = 18; // W/m²·K
+      if (cover === 'open_unins') {
+        lossCoeff = 75;
+      } else if (cover === 'closed_unins') {
+        lossCoeff = 38;
+      } else {
+        lossCoeff = 12; // Insulated
+      }
+
+      let pLossKw = (outerExtAreaM2 * lossCoeff * deltaTWater) / 1000;
+      let pTotalKw = 0;
+      let fitting = '2.0" BSP / NPT Screw Plug';
+      let elementCount = '3 x U-Hairpins (6 legs)';
+      let recLengthMm = 450;
+      let actualWD = 0;
+
+      if (!isJacketMode) {
+        // Direct Immersion Mode
+        pTotalKw = (pWaterHeatupKw + pLossKw) * 1.20;
+
+        if (pTotalKw <= 3.0) {
+          fitting = '1.5" BSP / NPT Screw Plug (SS304 or Brass)';
+          recLengthMm = 300;
+        } else if (pTotalKw <= 6.0) {
+          fitting = '2.0" BSP / NPT Screw Plug (SS304 / Incoloy)';
+          recLengthMm = 380;
+        } else if (pTotalKw <= 9.0) {
+          fitting = '2.0" or 2.5" BSP Screw Plug (SS304 / Incoloy)';
+          recLengthMm = 450;
+        } else if (pTotalKw <= 15.0) {
+          fitting = '2.5" BSP Plug or DN80 (3") ANSI Flange';
+          recLengthMm = 550;
+        } else {
+          fitting = 'DN100 (4") or DN150 (6") ANSI 150lb Flange';
+          elementCount = '6 to 9 Hairpins (12-18 legs)';
+          recLengthMm = 750;
+        }
+
+        const totalHairpins = pTotalKw > 15 ? 6 : 3;
+        const singleTubeDiam = 8.0; // mm
+        const activeLegs = totalHairpins * 2;
+        const activeLegLengthCm = (recLengthMm - 50) / 10;
+        const totalHeatedAreaCm2 = activeLegs * (Math.PI * (singleTubeDiam / 10) * activeLegLengthCm);
+        actualWD = (pTotalKw * 1000) / totalHeatedAreaCm2;
+
+        // DOM Updates for Direct Mode
+        document.getElementById('m3_lbl_hardware_badge').innerText = 'Direct Water Immersion';
+        document.getElementById('m3_lbl_hardware_badge').className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-teal-500/20 text-teal-400 border border-teal-500/30';
+        document.getElementById('m3_lbl_advisory_body').innerHTML = `
+          • For clean tap water, max allowable watt density is <strong>8–10 W/cm²</strong> (50–65 W/in²).<br>
+          • If hard water or mineral scaling is expected, reduce watt density to <strong>5–6 W/cm²</strong> to prevent scale crust bake-on and tube burnout.<br>
+          • For thermal oil heating, keep watt density <strong>≤ 2.5–3.0 W/cm²</strong> to avoid oil cracking and carbon deposits.
+        `;
+      } else {
+        // =========================================================================
+        // DOUBLE-LAYER THERMAL OIL JACKET CALCULATIONS
+        // =========================================================================
+        const oilGrade = document.getElementById('m3_oil_grade') ? document.getElementById('m3_oil_grade').value : 'std';
+        const oilCp = oilGrade === 'synth' ? 2.3 : 2.1; // kJ/kg·°C
+        const oilDensity = oilGrade === 'synth' ? 0.92 : 0.88; // kg/L
+        const oilDeltaOverWater = parseFloat(document.getElementById('m3_oil_delta') ? document.getElementById('m3_oil_delta').value : 30) || 30;
+        const agitation = document.getElementById('m3_agitation') ? document.getElementById('m3_agitation').value : 'natural';
+
+        const massOilKg = oilVolLiters * oilDensity;
+        const targetOilTemp = t2 + oilDeltaOverWater;
+        const deltaTOil = Math.max(1, targetOilTemp - t1);
+
+        // Sensible heat needed to raise the thermal oil from T1 to target oil temp
+        const qOilKj = massOilKg * oilCp * deltaTOil;
+        const pOilHeatupKw = qOilKj / (3600 * timeHours);
+
+        // Heat loss from outer jacket walls is higher because outer jacket is hotter (targetOilTemp vs ambient)
+        const outerDeltaT = Math.max(1, targetOilTemp - t1);
+        pLossKw = (outerExtAreaM2 * lossCoeff * outerDeltaT) / 1000;
+
+        // Total required power from immersion heaters installed inside the oil jacket
+        pTotalKw = (pWaterHeatupKw + pOilHeatupKw + pLossKw) * 1.20;
+
+        // Heat transfer check through inner tank wall (LMTD & Overall U-value)
+        // U: natural convection oil to water ~ 150-180 W/m²K, pumped ~ 280-350 W/m²K
+        const overallU = agitation === 'circ' ? 300 : 180; // W/m²·K
+        const lmtd = oilDeltaOverWater; // Effective steady driving force
+        const qMaxTransferKw = (overallU * innerTransferAreaM2 * lmtd) / 1000;
+
+        // Oil Jacket Immersion Heater Hardware Sizing
+        // CRITICAL: Thermal oil watt density MUST BE strictly ≤ 2.5–3.0 W/cm²!
+        let totalHairpins = 3;
+        if (pTotalKw <= 4.0) {
+          fitting = '2.0" BSP / NPT Screw Plug (SS304 sheath for oil)';
+          recLengthMm = 450;
+          totalHairpins = 3;
+        } else if (pTotalKw <= 7.5) {
+          fitting = '2.5" BSP Screw Plug or DN65 Flange';
+          recLengthMm = 600;
+          totalHairpins = 3;
+        } else if (pTotalKw <= 12.0) {
+          fitting = 'DN80 (3") ANSI 150lb SS304 Flange (Oil rated)';
+          recLengthMm = 750;
+          totalHairpins = 6;
+        } else if (pTotalKw <= 20.0) {
+          fitting = 'DN100 (4") ANSI 150lb SS304 Flange (Dual zone / 6-9 hairpins)';
+          recLengthMm = 900;
+          totalHairpins = 6;
+        } else {
+          fitting = 'DN150 (6") ANSI 150lb SS304 Flange (Multi-loop low watt density)';
+          recLengthMm = 1100;
+          totalHairpins = 9;
+        }
+
+        const singleTubeDiam = 10.0; // mm (larger diameter for oil heaters to maximize surface area)
+        const activeLegs = totalHairpins * 2;
+        const activeLegLengthCm = (recLengthMm - 60) / 10;
+        const totalHeatedAreaCm2 = activeLegs * (Math.PI * (singleTubeDiam / 10) * activeLegLengthCm);
+        actualWD = (pTotalKw * 1000) / totalHeatedAreaCm2;
+
+        elementCount = `${totalHairpins} x U-Hairpins (${activeLegs} legs, Ø${singleTubeDiam}mm)`;
+
+        // Update Jacket Metrics DOM
+        document.getElementById('m3_res_oil_vol').innerText = Math.round(oilVolLiters) + " L";
+        document.getElementById('m3_res_oil_mass').innerText = massOilKg.toFixed(1) + " kg";
+        document.getElementById('m3_res_oil_kw').innerText = pOilHeatupKw.toFixed(2) + " kW";
+        document.getElementById('m3_res_oil_target').innerText = targetOilTemp.toFixed(0) + "°C";
+        document.getElementById('m3_res_oil_dt').innerText = "Δ " + deltaTOil.toFixed(0) + "°C";
+        document.getElementById('m3_res_jacket_area').innerText = innerTransferAreaM2.toFixed(2) + " m²";
+        document.getElementById('m3_res_u_val').innerText = `U=${overallU} W/m²K`;
+        
+        document.getElementById('m3_lbl_oil_temp').innerText = targetOilTemp.toFixed(0) + "°C";
+        document.getElementById('m3_lbl_water_temp').innerText = t2.toFixed(0) + "°C";
+        document.getElementById('m3_lbl_lmtd').innerText = lmtd.toFixed(0) + "°C";
+        document.getElementById('m3_res_q_max').innerText = qMaxTransferKw.toFixed(1) + " kW";
+
+        const passBadge = document.getElementById('m3_res_oil_flux_pass');
+        if (qMaxTransferKw >= pWaterHeatupKw) {
+          passBadge.className = 'font-mono text-[10px] text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/40 font-bold';
+          passBadge.innerText = `Heat Transfer: PASS (${qMaxTransferKw.toFixed(1)}kW ≥ ${pWaterHeatupKw.toFixed(1)}kW needed)`;
+        } else {
+          passBadge.className = 'font-mono text-[10px] text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/40 font-bold';
+          passBadge.innerText = `Heat Transfer Bottleneck: Recommend increasing oil temp or agitation!`;
+        }
+
+        // Advisory Note specific to Double-Layer Jacket
+        document.getElementById('m3_lbl_advisory_head').innerHTML = `<span>⚗️</span> Double-Layer Thermal Oil Jacket Engineering Guidance:`;
+        document.getElementById('m3_lbl_advisory_body').innerHTML = `
+          • <strong>Gentle Indirect Heating:</strong> Zero water contact with heating elements. No mineral scaling, zero burn marks on water or food/chemical contents.<br>
+          • <strong>Immersion Watt Density Limit:</strong> Because heaters are submerged in <em>Thermal Oil</em>, watt density must strictly be <strong>≤ 2.5–3.0 W/cm²</strong> (${actualWD.toFixed(1)} W/cm² calculated) to avoid oil cracking and carbon coking.<br>
+          • <strong>Expansion Tank Requirement:</strong> Thermal oil expands by ~7–9% across this temperature delta. Must install an open/atmospheric vent or oil expansion reservoir at jacket top.<br>
+          • <strong>Over-Temperature Safety:</strong> Always equip a dedicated thermocouple / thermostat inserted directly into the oil jacket to prevent oil overheating beyond 200°C.
+        `;
+      }
+
+      // Universal DOM Updates
+      document.getElementById('m3_lbl_t1').innerText = t1 + "°C";
+      document.getElementById('m3_lbl_t2').innerText = t2 + "°C";
+      document.getElementById('m3_lbl_time').innerText = timeHours;
+      document.getElementById('m3_res_delta').innerText = "Δ " + deltaTWater;
+      document.getElementById('m3_res_liters').innerText = Math.round(litersWater);
+      document.getElementById('m3_res_mass').innerText = Math.round(massWaterKg);
+      document.getElementById('m3_res_kw_heatup').innerText = pWaterHeatupKw.toFixed(2);
+      document.getElementById('m3_res_kw_loss').innerText = pLossKw.toFixed(2);
+      document.getElementById('m3_res_kw_total').innerText = pTotalKw.toFixed(1);
+
+      document.getElementById('m3_res_fitting').innerText = fitting;
+      document.getElementById('m3_res_elements').innerText = elementCount;
+      document.getElementById('m3_res_length').innerText = `L = ${recLengthMm} mm`;
+      
+      const maxAllowedWD = isJacketMode ? 2.8 : liq.maxWD;
+      const mediumName = isJacketMode ? 'Thermal Oil' : liq.name;
+      const wdEl = document.getElementById('m3_res_wd');
+      wdEl.innerText = `${actualWD.toFixed(1)} W/cm² (Max limit for ${mediumName}: ${maxAllowedWD} W/cm²)`;
+
+      if (actualWD <= maxAllowedWD) {
+        wdEl.className = 'text-emerald-400 font-bold font-mono';
+      } else {
+        wdEl.className = 'text-amber-400 font-bold font-mono';
+        wdEl.innerText += ' - Recommend longer elements or larger flange to lower watt density!';
+      }
+    }
+
+    // =========================================================================
+    // MODE 4 LOGIC: SILICONE RUBBER HEATER ON STAINLESS STEEL PLATE UNIFORMITY
+    // =========================================================================
+    window.m4SimTimer = null;
+    window.lastM4Params = null;
+
+    function toggleM4Zones() {
+      const mode = document.getElementById('m4_zone_mode').value;
+      const wrapCustom = document.getElementById('m4_wrap_custom_grid');
+      const wrap5Custom = document.getElementById('m4_wrap_5zone_custom');
+      const badge = document.getElementById('m4_badge_zone_arch');
+
+      if (mode === '5_custom') {
+        if (wrap5Custom) wrap5Custom.classList.remove('hidden');
+        if (wrapCustom) wrapCustom.classList.add('hidden');
+        badge.innerText = '5 Custom Sized Modular Pads';
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30';
+      } else if (mode === 'custom') {
+        if (wrap5Custom) wrap5Custom.classList.add('hidden');
+        if (wrapCustom) wrapCustom.classList.remove('hidden');
+        badge.innerText = 'Custom Matrix Grid';
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 border border-purple-500/30';
+      } else if (mode === '1') {
+        if (wrap5Custom) wrap5Custom.classList.add('hidden');
+        if (wrapCustom) wrapCustom.classList.add('hidden');
+        badge.innerText = '1 Single Monolithic Mat';
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-slate-700 text-slate-300 border border-slate-600';
+      } else {
+        if (wrap5Custom) wrap5Custom.classList.add('hidden');
+        if (wrapCustom) wrapCustom.classList.add('hidden');
+        badge.innerText = `${mode} Independent Modular Zones`;
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30';
+      }
+    }
+
+    function loadM4Preset5ZoneColleague() {
+      document.getElementById('m4_plate_l').value = 558;
+      document.getElementById('m4_plate_w').value = 478;
+      document.getElementById('m4_plate_t').value = 3.0;
+      document.getElementById('m4_ss_grade').value = '304';
+      document.getElementById('m4_zone_mode').value = '5_custom';
+      document.getElementById('m4_z13_l').value = 384;
+      document.getElementById('m4_z13_w').value = 40;
+      document.getElementById('m4_z24_l').value = 558;
+      document.getElementById('m4_z24_w').value = 47;
+      document.getElementById('m4_z5_l').value = 478;
+      document.getElementById('m4_z5_w').value = 384;
+      document.getElementById('m4_custom_total_watts').value = 2030;
+      toggleM4Zones();
+      calculateMode4();
+    }
+
+    function loadM4PresetStandardLab() {
+      document.getElementById('m4_plate_l').value = 300;
+      document.getElementById('m4_plate_w').value = 200;
+      document.getElementById('m4_plate_t').value = 3.0;
+      document.getElementById('m4_ss_grade').value = '304';
+      document.getElementById('m4_zone_mode').value = '5';
+      toggleM4Zones();
+      calculateMode4();
+    }
+
+    function toggleM4Coverage() {
+      const radios = document.getElementsByName('m4_cov');
+      let cov = 'full';
+      for (let r of radios) {
+        if (r.checked) { cov = r.value; break; }
+      }
+
+      const wrapCustom = document.getElementById('m4_wrap_custom_specs');
+      const badge = document.getElementById('m4_badge_cov');
+      const lblFull = document.getElementById('lbl_m4_cov_full');
+      const lblCustom = document.getElementById('lbl_m4_cov_custom');
+
+      if (cov === 'custom') {
+        wrapCustom.classList.remove('hidden');
+        badge.innerText = 'Customer Custom Pad';
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 border border-purple-500/30';
+        lblCustom.className = 'flex items-center gap-2 p-2 rounded-lg border border-purple-500 bg-purple-500/10 cursor-pointer text-xs';
+        lblFull.className = 'flex items-center gap-2 p-2 rounded-lg border border-slate-700 bg-slate-800/60 cursor-pointer text-xs';
+      } else {
+        wrapCustom.classList.add('hidden');
+        badge.innerText = 'Auto Full Surface Sizing';
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30';
+        lblFull.className = 'flex items-center gap-2 p-2 rounded-lg border border-amber-500 bg-amber-500/10 cursor-pointer text-xs';
+        lblCustom.className = 'flex items-center gap-2 p-2 rounded-lg border border-slate-700 bg-slate-800/60 cursor-pointer text-xs';
+      }
+    }
+
+    function calculateMode4() {
+      // 1. Inputs
+      const L_plate = parseFloat(document.getElementById('m4_plate_l').value) || 300; // mm
+      const W_plate = parseFloat(document.getElementById('m4_plate_w').value) || 200; // mm
+      const t_plate = parseFloat(document.getElementById('m4_plate_t').value) || 3.0; // mm
+      const ssGrade = document.getElementById('m4_ss_grade').value;
+      const timeMin = parseFloat(document.getElementById('m4_time_min').value) || 15;
+      const tAmb = parseFloat(document.getElementById('m4_temp_amb').value) || 25;
+      const tTarget = parseFloat(document.getElementById('m4_temp_target').value) || 120;
+      const mountMethod = document.getElementById('m4_mount').value;
+      const insulation = document.getElementById('m4_insulation').value;
+      const foilTech = document.getElementById('m4_tech').value;
+      const zoneMode = document.getElementById('m4_zone_mode').value;
+      const zoneGapMm = parseFloat(document.getElementById('m4_zone_gap').value) || 5;
+
+      const radios = document.getElementsByName('m4_cov');
+      let covMode = 'full';
+      for (let r of radios) {
+        if (r.checked) { covMode = r.value; break; }
+      }
+
+      // Mat dimensions baseline
+      let matL = L_plate;
+      let matW = W_plate;
+      if (covMode === 'custom') {
+        matL = parseFloat(document.getElementById('m4_cust_l').value) || L_plate;
+        matW = parseFloat(document.getElementById('m4_cust_w').value) || W_plate;
+      }
+
+      // Material properties
+      let kCond = 16.2; // W/m·K (SS304)
+      let density = 8000; // kg/m³
+      let cp = 500; // J/kg·K (0.50 kJ/kg·K)
+      let matName = "SS304";
+
+      if (ssGrade === '316') {
+        kCond = 15.9; density = 8000; cp = 502; matName = "SS316";
+      } else if (ssGrade === '430') {
+        kCond = 26.0; density = 7700; cp = 460; matName = "SS430";
+      } else if (ssGrade === 'alu_comp') {
+        kCond = 167.0; density = 2700; cp = 896; matName = "Aluminum 6061";
+      }
+
+      // 2. Stainless Steel Plate Mass & Area
+      const plateVolM3 = (L_plate / 1000) * (W_plate / 1000) * (t_plate / 1000);
+      const plateMassKg = plateVolM3 * density;
+      const faceAreaM2 = (L_plate / 1000) * (W_plate / 1000);
+      const perimeterM = 2 * ((L_plate / 1000) + (W_plate / 1000));
+      const edgeAreaM2 = perimeterM * (t_plate / 1000);
+      const totalExposedAreaM2 = (faceAreaM2 * 2) + edgeAreaM2;
+
+      const deltaT = Math.max(1, tTarget - tAmb);
+
+      // 3. Sensible Heat-Up Power
+      const qSensibleJoules = plateMassKg * cp * deltaT;
+      const pHeatupWatts = qSensibleJoules / (timeMin * 60);
+
+      // 4. Heat Losses (Combined Natural Convection + Radiation)
+      let hCombined = 14.0; // W/m²·K for bare metal plate
+      let lossAreaM2 = totalExposedAreaM2;
+
+      if (insulation === 'back_sponge') {
+        hCombined = 11.0;
+        lossAreaM2 = faceAreaM2 + edgeAreaM2 + (faceAreaM2 * 0.15);
+      } else if (insulation === 'fully_insulated') {
+        hCombined = 5.0;
+        lossAreaM2 = faceAreaM2 * 0.4;
+      }
+
+      const pLossWatts = lossAreaM2 * hCombined * deltaT;
+
+      // 5. Total Required Power with 25% safety margin
+      let pTotalWatts = (pHeatupWatts + pLossWatts) * 1.25;
+
+      // 6. Mat Area & Watt Density Verification
+      let matAreaCm2 = (matL / 10) * (matW / 10);
+      if (zoneMode === '5_custom') {
+        const z13_l_val = parseFloat(document.getElementById('m4_z13_l').value) || 384;
+        const z13_w_val = parseFloat(document.getElementById('m4_z13_w').value) || 40;
+        const z24_l_val = parseFloat(document.getElementById('m4_z24_l').value) || 558;
+        const z24_w_val = parseFloat(document.getElementById('m4_z24_w').value) || 47;
+        const z5_l_val = parseFloat(document.getElementById('m4_z5_l').value) || 478;
+        const z5_w_val = parseFloat(document.getElementById('m4_z5_w').value) || 384;
+        matAreaCm2 = (2 * (z13_l_val / 10) * (z13_w_val / 10)) + (2 * (z24_l_val / 10) * (z24_w_val / 10)) + ((z5_l_val / 10) * (z5_w_val / 10));
+        pTotalWatts = parseFloat(document.getElementById('m4_custom_total_watts').value) || 2030;
+      }
+
+      const matAreaIn2 = matAreaCm2 / 6.4516;
+      const actualWD = matAreaCm2 > 0 ? (pTotalWatts / matAreaCm2) : 0;
+      const actualWdIn2 = actualWD * 6.4516;
+
+      // Max allowable watt density depends on mounting
+      let maxAllowedWD = 0.80; // W/cm² for PSA (5.16 W/in²)
+      let maxAllowedLabel = "0.80 W/cm² (5.16 W/in²) for PSA Adhesive";
+      if (mountMethod === 'rtv') {
+        maxAllowedWD = 0.95;
+        maxAllowedLabel = "0.95 W/cm² (6.13 W/in²) for RTV Paste";
+      } else if (mountMethod === 'clamped') {
+        maxAllowedWD = 1.20;
+        maxAllowedLabel = "1.20 W/cm² (7.74 W/in²) for Clamped Plate";
+      }
+
+      if (tTarget > 150) {
+        maxAllowedWD = maxAllowedWD * 0.75;
+        maxAllowedLabel += " (Derated for >150°C operation)";
+      }
+
+      // 7. Multi-Zone Architecture & Sizing Breakdown
+      let numZones = 1;
+      let zoneList = [];
+
+      if (zoneMode === '1') {
+        numZones = 1;
+        zoneList.push({
+          name: "Zone 1 (Full Mat)",
+          type: "monolithic",
+          wMm: matW,
+          lMm: matL,
+          areaCm2: matAreaCm2,
+          watts: Math.round(pTotalWatts),
+          wd: actualWD,
+          pct: 100
+        });
+      } else if (zoneMode === '3') {
+        numZones = 3;
+        // 2 Outer edge strips (boosted +20%) + 1 center zone
+        const edgeW = Math.max(30, Math.round(matW * 0.25));
+        const centerW = Math.max(20, matW - (2 * edgeW) - (2 * zoneGapMm));
+        const edgeAreaCm2 = (edgeW / 10) * (matL / 10);
+        const centerAreaCm2 = (centerW / 10) * (matL / 10);
+
+        // Boost edges by 20%
+        const edgeShare = 0.36; // 36% each edge strip
+        const centerShare = 0.28;
+        const edgeWatts = Math.round(pTotalWatts * edgeShare);
+        const centerWatts = Math.round(pTotalWatts * centerShare);
+
+        zoneList.push({ name: "Zone 1 (Left Edge)", type: "edge", wMm: edgeW, lMm: matL, areaCm2: edgeAreaCm2, watts: edgeWatts, wd: edgeWatts / edgeAreaCm2, pct: 36 });
+        zoneList.push({ name: "Zone 2 (Center Core)", type: "center", wMm: centerW, lMm: matL, areaCm2: centerAreaCm2, watts: centerWatts, wd: centerWatts / centerAreaCm2, pct: 28 });
+        zoneList.push({ name: "Zone 3 (Right Edge)", type: "edge", wMm: edgeW, lMm: matL, areaCm2: edgeAreaCm2, watts: edgeWatts, wd: edgeWatts / edgeAreaCm2, pct: 36 });
+      } else if (zoneMode === '5') {
+        numZones = 5;
+        // 5-Zone layout: 4 Perimeter Edge pads (Top, Bottom, Left, Right) + 1 Center Core pad
+        // Peripheral zones compensate edge dissipation
+        const borderX = Math.max(35, Math.round(matL * 0.22));
+        const borderY = Math.max(35, Math.round(matW * 0.22));
+        const centerL = Math.max(30, matL - (2 * borderX) - (2 * zoneGapMm));
+        const centerW = Math.max(30, matW - (2 * borderY) - (2 * zoneGapMm));
+
+        const edgeWattsEach = Math.round((pTotalWatts * 0.72) / 4); // 72% total power shared across 4 edges
+        const centerWatts = Math.round(pTotalWatts * 0.28);         // 28% in center
+
+        const edgeXAreaCm2 = (borderX / 10) * (matW / 10);
+        const edgeYAreaCm2 = (matL / 10) * (borderY / 10);
+        const centerAreaCm2 = (centerL / 10) * (centerW / 10);
+
+        zoneList.push({ name: "Zone 1 (Left Edge)", type: "edge", wMm: matW, lMm: borderX, areaCm2: edgeXAreaCm2, watts: edgeWattsEach, wd: edgeWattsEach / edgeXAreaCm2, pct: 18 });
+        zoneList.push({ name: "Zone 2 (Right Edge)", type: "edge", wMm: matW, lMm: borderX, areaCm2: edgeXAreaCm2, watts: edgeWattsEach, wd: edgeWattsEach / edgeXAreaCm2, pct: 18 });
+        zoneList.push({ name: "Zone 3 (Top Edge)", type: "edge", wMm: borderY, lMm: centerL, areaCm2: edgeYAreaCm2, watts: edgeWattsEach, wd: edgeWattsEach / edgeYAreaCm2, pct: 18 });
+        zoneList.push({ name: "Zone 4 (Bottom Edge)", type: "edge", wMm: borderY, lMm: centerL, areaCm2: edgeYAreaCm2, watts: edgeWattsEach, wd: edgeWattsEach / edgeYAreaCm2, pct: 18 });
+        zoneList.push({ name: "Zone 5 (Center Core)", type: "center", wMm: centerW, lMm: centerL, areaCm2: centerAreaCm2, watts: centerWatts, wd: centerWatts / centerAreaCm2, pct: 28 });
+      } else if (zoneMode === '5_custom') {
+        numZones = 5;
+        // User custom 5-zone exact dimensions & power
+        const z13_l = parseFloat(document.getElementById('m4_z13_l').value) || 384;
+        const z13_w = parseFloat(document.getElementById('m4_z13_w').value) || 40;
+        const z24_l = parseFloat(document.getElementById('m4_z24_l').value) || 558;
+        const z24_w = parseFloat(document.getElementById('m4_z24_w').value) || 47;
+        const z5_l = parseFloat(document.getElementById('m4_z5_l').value) || 478;
+        const z5_w = parseFloat(document.getElementById('m4_z5_w').value) || 384;
+        const customTotalW = parseFloat(document.getElementById('m4_custom_total_watts').value) || 2030;
+
+        const a13_cm2 = (z13_l / 10) * (z13_w / 10);
+        const a24_cm2 = (z24_l / 10) * (z24_w / 10);
+        const a5_cm2 = (z5_l / 10) * (z5_w / 10);
+        const totalPadAreaCm2 = (2 * a13_cm2) + (2 * a24_cm2) + a5_cm2;
+
+        // Allocate power proportional to area (equal watt density across zones)
+        const w13 = Math.round((a13_cm2 / totalPadAreaCm2) * customTotalW);
+        const w24 = Math.round((a24_cm2 / totalPadAreaCm2) * customTotalW);
+        const w5 = Math.round(customTotalW - (2 * w13) - (2 * w24));
+
+        zoneList.push({ name: "Zone 1 (Side Edge 1)", type: "edge", wMm: z13_w, lMm: z13_l, areaCm2: a13_cm2, watts: w13, wd: w13 / a13_cm2, pct: Math.round((w13 / customTotalW) * 100) });
+        zoneList.push({ name: "Zone 2 (Top Edge)", type: "edge", wMm: z24_w, lMm: z24_l, areaCm2: a24_cm2, watts: w24, wd: w24 / a24_cm2, pct: Math.round((w24 / customTotalW) * 100) });
+        zoneList.push({ name: "Zone 3 (Side Edge 2)", type: "edge", wMm: z13_w, lMm: z13_l, areaCm2: a13_cm2, watts: w13, wd: w13 / a13_cm2, pct: Math.round((w13 / customTotalW) * 100) });
+        zoneList.push({ name: "Zone 4 (Bottom Edge)", type: "edge", wMm: z24_w, lMm: z24_l, areaCm2: a24_cm2, watts: w24, wd: w24 / a24_cm2, pct: Math.round((w24 / customTotalW) * 100) });
+        zoneList.push({ name: "Zone 5 (Center Core)", type: "center", wMm: z5_w, lMm: z5_l, areaCm2: a5_cm2, watts: w5, wd: w5 / a5_cm2, pct: Math.round((w5 / customTotalW) * 100) });
+      } else if (zoneMode === '6') {
+        numZones = 6;
+        // 6-Zone layout: 2 Rows × 3 Columns matrix
+        const cellL = Math.round((matL - (2 * zoneGapMm)) / 3);
+        const cellW = Math.round((matW - zoneGapMm) / 2);
+        const cellAreaCm2 = (cellL / 10) * (cellW / 10);
+
+        // 4 outer corner zones get +15% power, 2 inner center zones get nominal power
+        const cornerWatts = Math.round((pTotalWatts * 0.72) / 4);
+        const midWatts = Math.round((pTotalWatts * 0.28) / 2);
+
+        zoneList.push({ name: "Zone 1 (Corner TL)", type: "edge", wMm: cellW, lMm: cellL, areaCm2: cellAreaCm2, watts: cornerWatts, wd: cornerWatts / cellAreaCm2, pct: 18 });
+        zoneList.push({ name: "Zone 2 (Center Mid-L)", type: "center", wMm: cellW, lMm: cellL, areaCm2: cellAreaCm2, watts: midWatts, wd: midWatts / cellAreaCm2, pct: 14 });
+        zoneList.push({ name: "Zone 3 (Corner TR)", type: "edge", wMm: cellW, lMm: cellL, areaCm2: cellAreaCm2, watts: cornerWatts, wd: cornerWatts / cellAreaCm2, pct: 18 });
+        zoneList.push({ name: "Zone 4 (Corner BL)", type: "edge", wMm: cellW, lMm: cellL, areaCm2: cellAreaCm2, watts: cornerWatts, wd: cornerWatts / cellAreaCm2, pct: 18 });
+        zoneList.push({ name: "Zone 5 (Center Mid-R)", type: "center", wMm: cellW, lMm: cellL, areaCm2: cellAreaCm2, watts: midWatts, wd: midWatts / cellAreaCm2, pct: 14 });
+        zoneList.push({ name: "Zone 6 (Corner BR)", type: "edge", wMm: cellW, lMm: cellL, areaCm2: cellAreaCm2, watts: cornerWatts, wd: cornerWatts / cellAreaCm2, pct: 18 });
+      } else {
+        // Custom Grid
+        const rows = parseInt(document.getElementById('m4_zones_x').value) || 3;
+        const cols = parseInt(document.getElementById('m4_zones_y').value) || 2;
+        numZones = rows * cols;
+        const cellL = Math.round((matL - ((rows - 1) * zoneGapMm)) / rows);
+        const cellW = Math.round((matW - ((cols - 1) * zoneGapMm)) / cols);
+        const cellAreaCm2 = (cellL / 10) * (cellW / 10);
+        const wattsPerCell = Math.round(pTotalWatts / numZones);
+
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const isEdge = (r === 0 || r === rows - 1 || c === 0 || c === cols - 1);
+            zoneList.push({
+              name: `Zone ${zoneList.length + 1} (R${r+1}C${c+1})`,
+              type: isEdge ? "edge" : "center",
+              wMm: cellW,
+              lMm: cellL,
+              areaCm2: cellAreaCm2,
+              watts: wattsPerCell,
+              wd: cellAreaCm2 > 0 ? (wattsPerCell / cellAreaCm2) : 0,
+              pct: Math.round(100 / numZones)
+            });
+          }
+        }
+      }
+
+      // Check max zone watt density across all zones to verify safe operating window
+      let maxZoneWD = 0;
+      zoneList.forEach(z => {
+        if (z.wd > maxZoneWD) maxZoneWD = z.wd;
+      });
+
+      // 8. Uniformity Strategy & Physics on Thin SS Plate
+      const tMeters = t_plate / 1000;
+      const mFin = Math.sqrt(hCombined / (kCond * tMeters));
+      const lThermalMm = (1 / mFin) * 1000;
+      const rawEdgeDropC = Math.min(18, deltaT * (1 - (1 / Math.cosh(mFin * (Math.min(L_plate, W_plate) / 2000)))));
+
+      let projDelta = 2.0;
+      if (numZones >= 5) {
+        // Multi-zone closed loop provides independent edge boost without overheating center
+        projDelta = Math.max(1.0, (rawEdgeDropC * 0.16) * (16.2 / kCond));
+      } else if (foilTech === 'etched_foil') {
+        projDelta = Math.max(1.4, (rawEdgeDropC * 0.22) * (16.2 / kCond));
+      } else {
+        projDelta = Math.max(3.5, (rawEdgeDropC * 0.65) * (16.2 / kCond));
+      }
+
+      // Populate Multi-Zone Grid DOM
+      const zoneContainer = document.getElementById('m4_zone_grid_container');
+      const badgeZoneCount = document.getElementById('m4_res_zone_count_badge');
+      if (badgeZoneCount) badgeZoneCount.innerText = `${numZones} Independent Zones`;
+
+      if (zoneContainer) {
+        let zoneHtml = "";
+        zoneList.forEach((z, idx) => {
+          const isSafe = z.wd <= maxAllowedWD;
+          const statusColor = isSafe ? "text-emerald-400" : "text-red-400";
+          const borderStyle = isSafe ? "border-slate-800" : "border-red-500/50 bg-red-500/10";
+          zoneHtml += `
+            <div class="p-2.5 bg-slate-900 rounded-lg border ${borderStyle} space-y-1">
+              <div class="flex items-center justify-between text-[10px] font-bold text-white">
+                <span>${z.name}</span>
+                <span class="px-1.5 py-0.2 rounded text-[9px] ${z.type === 'edge' ? 'bg-amber-500/20 text-amber-300' : 'bg-blue-500/20 text-blue-300'} font-sans">
+                  ${z.type === 'edge' ? 'Edge Boost' : 'Center Core'}
+                </span>
+              </div>
+              <div class="text-sm font-bold font-mono text-amber-400">${z.watts} W</div>
+              <div class="text-[10px] text-slate-400">${z.lMm}×${z.wMm} mm (${Math.round(z.areaCm2)} cm²)</div>
+              <div class="text-[10px] ${statusColor} font-bold flex items-center justify-between pt-1 border-t border-slate-800">
+                <span>Density:</span>
+                <span>${z.wd.toFixed(2)} W/cm²</span>
+              </div>
+            </div>
+          `;
+        });
+        zoneContainer.innerHTML = zoneHtml;
+      }
+
+      // Populate Maintenance Savings Callout
+      const savingsDesc = document.getElementById('m4_res_savings_desc');
+      const savingsBadge = document.getElementById('m4_res_savings_badge');
+      if (numZones > 1) {
+        if (savingsBadge) savingsBadge.innerText = `Save ~${Math.round((1 - (1/numZones)) * 100)}% Replacement Cost`;
+        if (savingsDesc) {
+          savingsDesc.innerHTML = `
+            By dividing into <strong>${numZones} modular independent zones</strong>, if a heater pad sustains mechanical damage or burn-out after years of heavy cycle use, you only purchase and replace <strong>1 small modular pad (~${Math.round(100/numZones)}% of area, approx. $30–$40)</strong>. You do NOT need to scrape off the entire assembly or recalibrate the whole plate ($200+ savings)!
+          `;
+        }
+      } else {
+        if (savingsBadge) savingsBadge.innerText = `Monolithic 1-Piece Pad`;
+        if (savingsDesc) {
+          savingsDesc.innerHTML = `
+            Using 1 single large monolithic mat. If any section fails, the entire mat must be replaced, resulting in higher maintenance teardown cost. Recommend splitting into 5 or 6 zones for lower lifecycle service cost.
+          `;
+        }
+      }
+
+      // Uniformity Strategy Note
+      const uniformityNoteEl = document.getElementById('m4_uniformity_note');
+      if (uniformityNoteEl) {
+        uniformityNoteEl.innerHTML = `
+          <strong>${numZones >= 5 ? 'Modular Multi-Zone Closed-Loop Advantage' : 'Etched Foil Distributed Profiling'}:</strong><br>
+          • <strong>Conductivity Bottleneck:</strong> ${matName} has low thermal conductivity (k=${kCond.toFixed(1)} W/m·K) and plate thickness is ${t_plate} mm. Edge loss penetrates inward by <strong>${lThermalMm.toFixed(0)} mm</strong>.<br>
+          • <strong>Multi-Zone Edge Compensation:</strong> Outer zones run at <strong>${(actualWD * 1.15).toFixed(2)} W/cm²</strong> to supply perimeter convection losses, while center zone runs at <strong>${(actualWD * 0.85).toFixed(2)} W/cm²</strong> to eliminate central thermal hotspots.<br>
+          • <strong>Watt Density Safety Verification:</strong> Peak zone density is <strong>${maxZoneWD.toFixed(2)} W/cm²</strong> (vs allowable limit of ${maxAllowedWD.toFixed(2)} W/cm² for ${mountMethod.toUpperCase()}) — <span class="${maxZoneWD <= maxAllowedWD ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}">${maxZoneWD <= maxAllowedWD ? 'SAFE' : 'OVER LIMIT: Increase area or time'}</span>.<br>
+          • <strong>Projected Surface Uniformity:</strong> Delivers <strong>± ${projDelta.toFixed(1)}°C</strong> across the stainless steel working area.
+        `;
+      }
+
+      // Universal DOM Updates
+      document.getElementById('m4_lbl_t1').innerText = tAmb + "°C";
+      document.getElementById('m4_lbl_t2').innerText = tTarget + "°C";
+      document.getElementById('m4_lbl_time').innerText = timeMin;
+      document.getElementById('m4_lbl_time2').innerText = timeMin;
+      document.getElementById('m4_res_delta').innerText = "Δ " + deltaT;
+
+      document.getElementById('m4_res_mass').innerText = plateMassKg.toFixed(2);
+      document.getElementById('m4_res_area').innerText = faceAreaM2.toFixed(3);
+      document.getElementById('m4_res_kw_heatup').innerText = Math.round(pHeatupWatts);
+      document.getElementById('m4_res_kw_loss').innerText = Math.round(pLossWatts);
+      document.getElementById('m4_res_watts_total').innerText = Math.round(pTotalWatts);
+
+      document.getElementById('m4_res_mat_area').innerText = `${Math.round(matAreaCm2)} cm² (${matAreaIn2.toFixed(1)} in²)`;
+      document.getElementById('m4_res_wd_val').innerText = `${actualWD.toFixed(2)} W/cm² (Avg) | Max Zone: ${maxZoneWD.toFixed(2)} W/cm²`;
+      document.getElementById('m4_res_wd_max').innerText = maxAllowedLabel;
+
+      const wdBadge = document.getElementById('m4_badge_wd_status');
+      if (maxZoneWD <= maxAllowedWD) {
+        wdBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+        wdBadge.innerText = `PASS: Safe Zone (${maxZoneWD.toFixed(2)} ≤ ${maxAllowedWD.toFixed(2)} W/cm²)`;
+      } else {
+        wdBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30';
+        wdBadge.innerText = `WARNING: Peak Zone Over Limit (${maxZoneWD.toFixed(2)} > ${maxAllowedWD.toFixed(2)} W/cm²)`;
+      }
+
+      const uniBadge = document.getElementById('m4_badge_uniformity');
+      if (projDelta <= 3.0) {
+        uniBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+        uniBadge.innerText = `± ${projDelta.toFixed(1)}°C (PASS: within ±3°C)`;
+      } else {
+        uniBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30';
+        uniBadge.innerText = `± ${projDelta.toFixed(1)}°C (WARNING: exceeds ±3°C)`;
+      }
+
+      // Package parameters for 2D Thermal Simulation
+      window.lastM4Params = {
+        L: L_plate,
+        W: W_plate,
+        t: t_plate,
+        matL: matL,
+        matW: matW,
+        tAmb: tAmb,
+        tTarget: tTarget,
+        kCond: kCond,
+        projDelta: projDelta,
+        foilTech: foilTech,
+        matName: matName,
+        covMode: covMode,
+        numZones: numZones,
+        zoneMode: zoneMode,
+        zoneList: zoneList
+      };
+
+      if (!window.m4SimTimer) {
+        renderSimFrameM4(window.lastM4Params, 1.0);
+      }
+    }
+
+    // Dynamic Animation Engine for Mode 4
+    function triggerM4SimulationAnimation() {
+      calculateMode4();
+      if (!window.lastM4Params) return;
+
+      const btn = document.getElementById('btn_run_sim_m4');
+      const btnText = document.getElementById('sim_m4_text');
+      const btnIcon = document.getElementById('sim_m4_icon');
+
+      if (window.m4SimTimer) {
+        clearInterval(window.m4SimTimer);
+        window.m4SimTimer = null;
+      }
+
+      if (btn) btn.classList.add('animate-pulse', 'ring-2', 'ring-amber-400');
+      if (btnIcon) btnIcon.innerText = '⏳';
+      if (btnText) btnText.innerText = 'Simulating Heat-Up...';
+
+      const startTime = Date.now();
+      const durationMs = 1800;
+
+      window.m4SimTimer = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        let progress = Math.min(1.0, elapsed / durationMs);
+        let easeProgress = Math.sin((progress * Math.PI) / 2);
+
+        renderSimFrameM4(window.lastM4Params, easeProgress);
+
+        if (progress >= 1.0) {
+          clearInterval(window.m4SimTimer);
+          window.m4SimTimer = null;
+          if (btn) btn.classList.remove('animate-pulse', 'ring-2', 'ring-amber-400');
+          if (btnIcon) btnIcon.innerText = '🔄';
+          if (btnText) btnText.innerText = 'Re-Run Simulation';
+        }
+      }, 30);
+    }
+
+    function renderSimFrameM4(params, heatUpFactor = 1.0) {
+      const canvas = document.getElementById('thermalCanvasM4');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const cw = canvas.width;
+      const ch = canvas.height;
+
+      ctx.clearRect(0, 0, cw, ch);
+
+      // Plate geometry padding
+      const padX = 35;
+      const padY = 25;
+      const plateW = cw - (padX * 2);
+      const plateH = ch - (padY * 2);
+
+      // Current temperature values
+      const currentNominal = params.tAmb + (params.tTarget - params.tAmb) * heatUpFactor;
+      const currentDelta = params.projDelta * heatUpFactor;
+      const minT = (currentNominal - currentDelta).toFixed(1);
+      const maxT = (currentNominal + currentDelta).toFixed(1);
+
+      const deltaEl = document.getElementById('sim_m4_delta');
+      const minEl = document.getElementById('sim_m4_min_t');
+      const nomEl = document.getElementById('sim_m4_nom_t');
+      const maxEl = document.getElementById('sim_m4_max_t');
+
+      if (minEl) minEl.innerText = minT + "°C";
+      if (nomEl) nomEl.innerText = currentNominal.toFixed(1) + "°C";
+      if (maxEl) maxEl.innerText = maxT + "°C";
+
+      if (deltaEl) {
+        if (params.projDelta <= 3.0) {
+          deltaEl.className = 'text-emerald-400 font-bold';
+          deltaEl.innerText = `± ${params.projDelta.toFixed(1)}°C (PASS: within ±3°C)`;
+        } else {
+          deltaEl.className = 'text-amber-400 font-bold';
+          deltaEl.innerText = `± ${params.projDelta.toFixed(1)}°C (WARNING: exceeds ±3°C)`;
+        }
+      }
+
+      // 1. Draw Stainless Steel Plate base background
+      ctx.fillStyle = '#0f172a';
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 2;
+      ctx.fillRect(padX, padY, plateW, plateH);
+      ctx.strokeRect(padX, padY, plateW, plateH);
+
+      // 2. Render 2D Surface Temperature Heatmap Gradient across width
+      const numSlices = 140;
+      const sliceW = plateW / numSlices;
+      const isMultiZone = params.numZones >= 3;
+
+      for (let i = 0; i < numSlices; i++) {
+        const xPos = padX + (i * sliceW);
+        const normX = i / numSlices;
+        const edgeDistNorm = Math.min(normX, 1 - normX);
+
+        let localIntensity = 1.0;
+        if (isMultiZone) {
+          // Multi-zone layout provides exceptional flatness across the plate
+          const edgeDrop = Math.exp(-edgeDistNorm * 26) * 0.12;
+          localIntensity = 1.0 - edgeDrop;
+        } else if (params.foilTech === 'etched_foil') {
+          const edgeDrop = Math.exp(-edgeDistNorm * 22) * 0.18;
+          localIntensity = 1.0 - edgeDrop;
+        } else {
+          const edgeDrop = Math.exp(-edgeDistNorm * 9) * 0.42;
+          localIntensity = 1.0 - edgeDrop;
+        }
+
+        localIntensity = localIntensity * heatUpFactor;
+        const heatNorm = Math.max(0, Math.min(1, (localIntensity - 0.5 * heatUpFactor) / (0.95 * heatUpFactor || 0.1)));
+
+        let r = Math.floor(35 + (heatNorm * 220 * heatUpFactor));
+        let g = Math.floor(70 + (heatNorm > 0.5 ? (1 - heatNorm) * 115 : heatNorm * 110) * heatUpFactor);
+        let b = Math.floor(215 * (1 - heatNorm * 0.85));
+
+        ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+        ctx.fillRect(xPos, padY + 2, sliceW + 1, plateH - 4);
+      }
+
+      // 3. Draw Multi-Zone Modular Outlines & Zone Boundaries
+      const matVisualW = (params.matW / params.W) * plateW;
+      const matVisualH = plateH - 16;
+      const matStartX = padX + (plateW - matVisualW) / 2;
+      const matStartY = padY + 8;
+
+      if (params.numZones === 1) {
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.strokeRect(matStartX, matStartY, matVisualW, matVisualH);
+        ctx.setLineDash([]);
+      } else if (params.numZones === 3) {
+        // 3 Zones across width
+        const zW = matVisualW / 3;
+        for (let z = 0; z < 3; z++) {
+          ctx.strokeStyle = z === 1 ? '#38bdf8' : '#f59e0b';
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(matStartX + z * zW + 1, matStartY, zW - 2, matVisualH);
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '9px JetBrains Mono, monospace';
+          ctx.fillText(`Z${z+1}`, matStartX + (z + 0.5) * zW, matStartY + matVisualH / 2);
+        }
+      } else if (params.numZones === 5) {
+        // 5-Zone: 4 perimeter edge zones + 1 center
+        let edgeThickX = matVisualW * 0.22;
+        let edgeThickY = matVisualH * 0.22;
+
+        if (params.zoneMode === '5_custom' && params.zoneList && params.zoneList.length === 5) {
+          // Proportion based on exact user inputs
+          const z13_w = params.zoneList[0].wMm || 40;
+          const z24_w = params.zoneList[1].wMm || 47;
+          edgeThickX = Math.max(12, (z13_w / params.W) * plateW);
+          edgeThickY = Math.max(12, (z24_w / params.L) * plateH);
+        }
+
+        ctx.lineWidth = 1.5;
+        // Left
+        ctx.strokeStyle = '#f59e0b';
+        ctx.strokeRect(matStartX, matStartY, edgeThickX, matVisualH);
+        // Right
+        ctx.strokeRect(matStartX + matVisualW - edgeThickX, matStartY, edgeThickX, matVisualH);
+        // Top
+        ctx.strokeRect(matStartX + edgeThickX + 2, matStartY, matVisualW - 2 * edgeThickX - 4, edgeThickY);
+        // Bottom
+        ctx.strokeRect(matStartX + edgeThickX + 2, matStartY + matVisualH - edgeThickY, matVisualW - 2 * edgeThickX - 4, edgeThickY);
+        // Center
+        ctx.strokeStyle = '#38bdf8';
+        ctx.strokeRect(matStartX + edgeThickX + 2, matStartY + edgeThickY + 2, matVisualW - 2 * edgeThickX - 4, matVisualH - 2 * edgeThickY - 4);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '8px JetBrains Mono, monospace';
+        ctx.fillText(`Z1`, matStartX + edgeThickX / 2 - 4, matStartY + matVisualH / 2);
+        ctx.fillText(`Z3`, matStartX + matVisualW - edgeThickX / 2 - 4, matStartY + matVisualH / 2);
+        ctx.fillText(`Z2`, matStartX + matVisualW / 2 - 4, matStartY + edgeThickY / 2 + 3);
+        ctx.fillText(`Z4`, matStartX + matVisualW / 2 - 4, matStartY + matVisualH - edgeThickY / 2 + 3);
+        ctx.fillText(`Z5 (Core)`, matStartX + matVisualW / 2 - 16, matStartY + matVisualH / 2 + 3);
+      } else if (params.numZones === 6) {
+        // 2×3 Grid
+        const cellW = matVisualW / 3;
+        const cellH = matVisualH / 2;
+        let zCount = 1;
+        for (let r = 0; r < 2; r++) {
+          for (let c = 0; c < 3; c++) {
+            const isCenter = (c === 1);
+            ctx.strokeStyle = isCenter ? '#38bdf8' : '#f59e0b';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(matStartX + c * cellW + 1, matStartY + r * cellH + 1, cellW - 2, cellH - 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '8px JetBrains Mono, monospace';
+            ctx.fillText(`Z${zCount++}`, matStartX + (c + 0.5) * cellW, matStartY + (r + 0.5) * cellH + 3);
+          }
+        }
+      }
+
+      // Labels on Canvas
+      ctx.font = '10px JetBrains Mono, monospace';
+      ctx.fillStyle = '#f8fafc';
+      ctx.textAlign = 'center';
+      const statusText = heatUpFactor < 1.0 ? `[Simulating Heat-Up: ${Math.round(heatUpFactor * 100)}%]` : `[Steady State: ±${params.projDelta.toFixed(1)}°C]`;
+      ctx.fillText(`${params.matName} Plate (${params.L}×${params.W}×${params.t}mm) — ${params.numZones} Modular Zones (${statusText})`, cw / 2, ch - 2);
+    }
+
+    // Initialize all tabs on load
+    window.addEventListener('DOMContentLoaded', () => {
+      handleM1TypeChange();
+      calculateMode1();
+      calculateMode2();
+      calculateMode3();
+      calculateMode4();
+    });
+  </script>
+</body>
+</html>
